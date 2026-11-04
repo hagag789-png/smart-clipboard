@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap">
 
 <style>
-/* ── Tokens — committed dark design ──────────────────────────────── */
+/* ── Tokens — committed dark design ──────────────────── */
 :root {
   --bg:       #0D0D14;
   --surface:  #141420;
@@ -27,7 +27,7 @@
   color-scheme: dark;
 }
 
-/* ── Reset / Base ────────────────────────────────────────────────── */
+/* ── Reset / Base ──────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 html, body { height: 100%; }
 body {
@@ -41,7 +41,7 @@ body {
 }
 button { font-family: inherit; cursor: pointer; }
 
-/* ── App Shell ───────────────────────────────────────────────────── */
+/* ── App Shell ─────────────────────────────────────── */
 #app { display: flex; flex-direction: column; height: 100%; max-width: 500px; margin: 0 auto; }
 
 /* Status bar safe area */
@@ -53,7 +53,7 @@ button { font-family: inherit; cursor: pointer; }
   flex-shrink: 0;
 }
 
-/* ── Header ──────────────────────────────────────────────────────── */
+/* ── Header ─────────────────────────────────────────── */
 #header {
   flex-shrink: 0;
   display: flex; align-items: center; justify-content: space-between;
@@ -62,440 +62,484 @@ button { font-family: inherit; cursor: pointer; }
 .logo-wrap {
   width: 42px; height: 42px;
   background: linear-gradient(135deg, var(--purple), var(--purple2));
-  border-radius: 13px;
+  border-radius: 12px;
   display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
+  font-size: 22px;
 }
-.app-name { font-size: 17px; font-weight: 800; }
-.running-dot {
-  display: flex; align-items: center; gap: 5px; margin-top: 2px;
-}
-.dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; }
-.running-label { font-size: 11px; color: var(--green); font-weight: 600; }
-.icon-btn {
-  width: 38px; height: 38px;
-  background: var(--elevated);
-  border: none; border-radius: 11px;
-  display: flex; align-items: center; justify-content: center;
-}
-.icon-btn svg { display: block; }
+.app-title { font-size: 18px; font-weight: 700; }
+.app-sub   { font-size: 11px; color: var(--text2); }
 
-/* ── Paste CTA ───────────────────────────────────────────────────── */
-#paste-btn {
+/* ── Filter bar ─────────────────────────────────────── */
+#filter-bar {
   flex-shrink: 0;
-  width: calc(100% - 28px); margin: 0 14px 14px;
-  padding: 16px;
-  background: linear-gradient(135deg, var(--purple), var(--purple2));
-  border: none; border-radius: 16px;
-  color: white; font-size: 15px; font-weight: 700;
-  display: flex; align-items: center; justify-content: center; gap: 10px;
-  box-shadow: 0 4px 20px rgba(124,58,237,.35);
-  transition: transform .1s, opacity .1s;
-}
-#paste-btn:active { transform: scale(.98); opacity: .9; }
-
-/* ── Stats ───────────────────────────────────────────────────────── */
-#stats {
-  flex-shrink: 0;
-  display: flex; gap: 8px;
+  display: flex; gap: 6px;
   padding: 0 14px 12px;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
-.stat-card {
-  flex: 1; background: var(--surface); border-radius: 14px;
-  padding: 11px 8px 10px; text-align: center;
-}
-.stat-num { font-size: 20px; font-weight: 800; line-height: 1; }
-.stat-lbl { font-size: 10px; color: var(--muted); margin-top: 4px; font-weight: 600; }
-
-/* ── Tabs ────────────────────────────────────────────────────────── */
-#tabs {
-  flex-shrink: 0;
-  display: flex; gap: 7px;
-  padding: 0 14px 10px;
-  overflow-x: auto; scrollbar-width: none;
-}
-#tabs::-webkit-scrollbar { display: none; }
-.tab {
-  flex-shrink: 0;
-  padding: 7px 14px; border-radius: 20px; border: none;
-  font-size: 12px; font-weight: 700;
-  transition: background .15s, color .15s;
-}
-.tab.on  { background: var(--purple); color: white; }
-.tab.off { background: var(--elevated); color: var(--muted); }
-
-/* ── Scrollable content ──────────────────────────────────────────── */
-#content {
-  flex: 1; overflow-y: auto; overflow-x: hidden;
-  overscroll-behavior: contain;
-  padding: 0 14px calc(12px + env(safe-area-inset-bottom, 0px));
-}
-#content::-webkit-scrollbar { display: none; }
-
-/* ── Section heads ───────────────────────────────────────────────── */
-.sec-head {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 8px;
-}
-.sec-title { font-size: 13px; font-weight: 700; color: var(--text2); }
-.clear-btn { background: none; border: none; color: var(--purple); font-size: 11px; font-weight: 700; padding: 4px; }
-
-/* ── Clip Cards ──────────────────────────────────────────────────── */
-.clip-card {
-  background: var(--surface); border-radius: 14px;
-  padding: 11px 12px; margin-bottom: 8px;
-  display: flex; align-items: center; gap: 10px;
-  border: 1px solid transparent;
-  animation: fadeIn .18s ease;
-}
-.clip-card.sensitive { border-color: rgba(245,158,11,.18); }
-.clip-card.pinned    { border-color: rgba(124,58,237,.25); }
-@keyframes fadeIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:none; } }
-
-.clip-ico {
-  width: 34px; height: 34px; border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px; flex-shrink: 0;
-}
-.clip-meta { flex: 1; min-width: 0; }
-.clip-kind {
-  font-size: 10px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: .6px;
-  margin-bottom: 2px; color: var(--dim);
-}
-.clip-kind.hot { color: var(--amber); }
-.clip-val {
-  font-size: 12px; font-weight: 600; color: var(--text2);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.clip-val.masked { font-size: 14px; letter-spacing: 2px; }
-
-.clip-actions { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
-.clip-time { font-size: 10px; color: #383850; font-weight: 500; }
-.act-btn {
-  background: none; border: none; padding: 4px;
-  font-size: 13px; line-height: 1;
-  display: flex; align-items: center; opacity: .65;
-}
-.act-btn:active { opacity: 1; }
-
-/* ── Empty ───────────────────────────────────────────────────────── */
-#empty {
-  text-align: center; padding: 56px 24px;
-  display: none;
-}
-.empty-ico { font-size: 44px; margin-bottom: 14px; }
-.empty-h { font-size: 16px; font-weight: 700; color: var(--text2); margin-bottom: 8px; }
-.empty-p { font-size: 13px; color: var(--muted); line-height: 1.7; }
-
-/* ── Bottom Nav ──────────────────────────────────────────────────── */
-#nav {
-  flex-shrink: 0;
-  display: flex; justify-content: space-around;
-  padding: 10px 24px;
-  padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
-  background: #10101c;
-  border-top: 1px solid var(--border);
-}
-.nav-btn {
-  display: flex; flex-direction: column; align-items: center; gap: 3px;
-  background: none; border: none; padding: 4px 16px;
-}
-.nav-ico { font-size: 20px; line-height: 1; }
-.nav-lbl { font-size: 10px; font-weight: 700; color: var(--muted); }
-.nav-btn.on .nav-lbl { color: var(--purple); }
-
-/* ── Settings sheet ──────────────────────────────────────────────── */
-#overlay {
-  display: none;
-  position: fixed; inset: 0; z-index: 50;
-  background: rgba(0,0,0,.7);
-  align-items: flex-end;
-}
-#overlay.open { display: flex; }
-.sheet {
-  width: 100%; max-height: 88vh;
-  background: #0e0e1c; border-radius: 24px 24px 0 0;
-  overflow-y: auto;
-  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
-  animation: slideUp .22s ease;
-}
-@keyframes slideUp { from { transform: translateY(100%); } to { transform: none; } }
-.sheet-handle { width: 38px; height: 4px; background: #2a2a3a; border-radius: 2px; margin: 14px auto; }
-.sheet-title { font-size: 17px; font-weight: 800; padding: 0 18px 14px; }
-
-.sg { background: var(--surface); border-radius: 16px; margin: 0 14px 14px; overflow: hidden; }
-.sr {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--border);
-}
-.sr:last-child { border-bottom: none; }
-.sr-info { display: flex; align-items: center; gap: 12px; }
-.sr-ico  { font-size: 18px; }
-.sr-name { font-size: 13px; font-weight: 700; color: var(--text2); }
-.sr-sub  { font-size: 11px; color: var(--muted); margin-top: 2px; }
-.sec-lbl {
-  font-size: 10px; font-weight: 700;
-  letter-spacing: 1.2px; text-transform: uppercase;
-  color: var(--dim); padding: 6px 18px 8px;
-}
-
-/* Toggle */
-.toggle {
-  width: 46px; height: 27px; border-radius: 14px; border: none;
-  display: flex; align-items: center; padding: 0 3px;
-  transition: background .2s; flex-shrink: 0;
-}
-.toggle.on  { background: var(--purple); justify-content: flex-end; }
-.toggle.off { background: #2a2a3a;       justify-content: flex-start; }
-.knob { width: 21px; height: 21px; background: white; border-radius: 50%; }
-
-/* Chips */
-.chips { display: flex; gap: 8px; padding: 4px 0; }
+#filter-bar::-webkit-scrollbar { display: none; }
 .chip {
-  padding: 6px 14px; border-radius: 9px; border: none;
-  font-size: 12px; font-weight: 700;
+  display: flex; align-items: center; gap: 5px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text2);
+  font-size: 12px; font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all .15s;
 }
-.chip.on  { background: var(--purple); color: white; }
-.chip.off { background: #1c1c2c; color: var(--muted); }
+.chip.active { background: var(--purple); border-color: var(--purple); color: #fff; }
 
-/* ── Confirm dialog ──────────────────────────────────────────────── */
+/* ── List ─────────────────────────────────────────────── */
+#list {
+  flex: 1; overflow-y: auto;
+  padding: 0 12px;
+  display: flex; flex-direction: column; gap: 8px;
+  scrollbar-width: thin; scrollbar-color: var(--dim) transparent;
+}
+#list::-webkit-scrollbar { width: 4px; }
+#list::-webkit-scrollbar-track { background: transparent; }
+#list::-webkit-scrollbar-thumb { background: var(--dim); border-radius: 2px; }
+
+.card {
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  gap: 10px; align-items: start;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: border-color .15s, transform .08s;
+  animation: slideIn .2s ease;
+}
+.card:active { transform: scale(.98); }
+.card.sensitive { border-color: rgba(245,158,11,.18); }
+@keyframes slideIn { from { opacity:0; transform: translateY(-8px); } to { opacity:1; transform: none; } }
+
+.card-icon { font-size: 20px; padding-top: 2px; }
+.card-label { font-size: 11px; font-weight: 600; color: var(--text2); letter-spacing: .3px; }
+.card-val {
+  font-size: 14px; font-weight: 500; color: var(--text);
+  word-break: break-all; white-space: pre-wrap;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+.card-val.blurred { filter: blur(5px); user-select: none; }
+.card-val.expanded { -webkit-line-clamp: unset; }
+.card-time { font-size: 10px; color: var(--muted); white-space: nowrap; }
+
+.card-actions { display: flex; gap: 6px; align-items: center; }
+.icon-btn {
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,.06); border: none;
+  font-size: 14px; color: var(--text2);
+  transition: background .15s;
+}
+.icon-btn:hover { background: rgba(255,255,255,.12); }
+
+/* ── Empty state ─────────────────────────────────────── */
+#empty {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 12px; flex: 1;
+  color: var(--text2);
+}
+#empty .empty-icon { font-size: 48px; opacity: .4; }
+#empty p { font-size: 14px; text-align: center; line-height: 1.6; }
+
+/* ── Paste button ─────────────────────────────────────── */
+#paste-bar {
+  flex-shrink: 0;
+  padding: 12px 16px;
+  display: flex; gap: 10px;
+}
+#paste-btn {
+  flex: 1;
+  padding: 14px;
+  background: linear-gradient(135deg, var(--purple), var(--purple2));
+  color: #fff; font-size: 16px; font-weight: 700;
+  border: none; border-radius: 14px;
+  transition: opacity .15s;
+}
+#paste-btn:active { opacity: .8; }
+#settings-btn {
+  width: 48px; height: 48px; margin: auto 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 20px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text2); border: none;
+}
+
+/* ── Detail overlay ───────────────────────────────────── */
+#overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.85);
+  z-index: 50;
+  display: flex; align-items: flex-end;
+  opacity: 0; pointer-events: none;
+  transition: opacity .2s;
+}
+#overlay.open { opacity: 1; pointer-events: auto; }
+#overlay-sheet {
+  width: 100%; max-width: 500px; margin: 0 auto;
+  background: var(--elevated);
+  border-radius: 20px 20px 0 0;
+  padding: 20px;
+  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  display: flex; flex-direction: column; gap: 14px;
+  transform: translateY(30px); transition: transform .2s;
+}
+#overlay.open #overlay-sheet { transform: none; }
+
+.ov-header { display: flex; align-items: center; gap: 10px; }
+.ov-icon { font-size: 28px; }
+.ov-label { font-size: 13px; font-weight: 700; color: var(--text2); letter-spacing: .3px; }
+.ov-text {
+  font-size: 15px; white-space: pre-wrap; word-break: break-all;
+  max-height: 180px; overflow-y: auto;
+  padding: 12px; border-radius: 10px; background: var(--surface);
+}
+.ov-text.blurred { filter: blur(6px); user-select: none; cursor: pointer; }
+.ov-row { display: flex; gap: 8px; }
+.ov-btn {
+  flex: 1; padding: 12px;
+  background: var(--surface); border: none;
+  border-radius: 12px; color: var(--text);
+  font-size: 14px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.ov-btn.danger { color: var(--red); }
+
+/* ── Confirm overlay ───────────────────────────────────── */
 #confirm-overlay {
-  display: none; position: fixed; inset: 0; z-index: 100;
-  background: rgba(0,0,0,.75);
-  align-items: center; justify-content: center;
-  padding: 24px;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.7);
+  z-index: 60;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity .15s;
+  padding: 20px;
 }
-#confirm-overlay.open { display: flex; }
-.confirm-box {
-  background: var(--elevated); border-radius: 18px;
-  padding: 24px; width: 100%; max-width: 320px;
-  text-align: center;
+#confirm-overlay.open { opacity: 1; pointer-events: auto; }
+#confirm-sheet {
+  background: var(--elevated); border-radius: 16px;
+  padding: 24px 20px;
+  display: flex; flex-direction: column; gap: 16px;
+  width: 100%; max-width: 320px;
 }
-.confirm-title { font-size: 16px; font-weight: 800; margin-bottom: 8px; }
-.confirm-msg   { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 20px; }
-.confirm-btns  { display: flex; gap: 10px; }
-.confirm-btns button {
-  flex: 1; padding: 12px; border-radius: 12px; border: none;
+.confirm-title { font-size: 16px; font-weight: 700; text-align: center; }
+.confirm-msg { font-size: 13px; color: var(--text2); text-align: center; line-height: 1.6; }
+.confirm-row { display: flex; gap: 8px; }
+.confirm-btn {
+  flex: 1; padding: 12px;
+  border: none; border-radius: 10px;
   font-size: 14px; font-weight: 700;
 }
-.confirm-cancel { background: var(--elevated); color: var(--muted); border: 1px solid var(--border) !important; }
-.confirm-ok     { background: var(--red); color: white; }
+.confirm-btn.cancel { background: var(--surface); color: var(--text); }
+.confirm-btn.ok     { background: var(--red);     color: #fff; }
 
-/* ── Toast ───────────────────────────────────────────────────────── */
+/* ── Settings panel ────────────────────────────────────── */
+#settings-panel {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.85);
+  z-index: 70;
+  display: flex; align-items: flex-end;
+  opacity: 0; pointer-events: none;
+  transition: opacity .2s;
+}
+#settings-panel.open { opacity: 1; pointer-events: auto; }
+#settings-sheet {
+  width: 100%; max-width: 500px; margin: 0 auto;
+  background: var(--elevated);
+  border-radius: 20px 20px 0 0;
+  padding: 20px;
+  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  display: flex; flex-direction: column; gap: 18px;
+  transform: translateY(30px); transition: transform .2s;
+  max-height: 80vh; overflow-y: auto;
+}
+#settings-panel.open #settings-sheet { transform: none; }
+
+.settings-title { font-size: 16px; font-weight: 700; }
+.settings-section { display: flex; flex-direction: column; gap: 10px; }
+.settings-label { font-size: 11px; font-weight: 600; color: var(--text2); letter-spacing: .4px; text-transform: uppercase; }
+.toggle-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.toggle-row:last-child { border-bottom: none; }
+.toggle-info { display: flex; flex-direction: column; gap: 2px; }
+.toggle-name { font-size: 14px; font-weight: 500; }
+.toggle-desc { font-size: 11px; color: var(--muted); }
+.toggle {
+  position: relative;
+  width: 44px; height: 24px;
+  background: var(--dim); border-radius: 12px;
+  transition: background .2s;
+  cursor: pointer; border: none;
+  flex-shrink: 0;
+}
+.toggle::after {
+  content: ''; position: absolute;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: #fff; top: 3px; right: 3px;
+  transition: transform .2s;
+}
+.toggle.on { background: var(--purple); }
+.toggle.on::after { transform: translateX(-20px); }
+
+.select-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.select-row:last-child { border-bottom: none; }
+select {
+  background: var(--surface); color: var(--text);
+  border: 1px solid var(--dim); border-radius: 8px;
+  padding: 6px 10px; font-size: 13px; font-family: inherit;
+}
+
+/* ── Toast ───────────────────────────────────────────── */
 #toast {
-  position: fixed; z-index: 200;
-  bottom: calc(90px + env(safe-area-inset-bottom, 0px));
-  left: 50%; transform: translateX(-50%) translateY(12px);
-  background: var(--surface); color: var(--text2);
-  border: 1px solid var(--border);
-  font-size: 13px; font-weight: 700;
-  padding: 10px 22px; border-radius: 22px;
-  opacity: 0; transition: opacity .2s, transform .2s;
+  position: fixed; bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+  left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--elevated);
+  color: var(--text);
+  padding: 10px 18px; border-radius: 20px;
+  font-size: 13px; font-weight: 600;
+  opacity: 0; transition: all .2s;
   pointer-events: none; white-space: nowrap;
+  border: 1px solid var(--border);
+  z-index: 100;
 }
 #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-#toast.ok   { background: var(--green); color: white; border-color: transparent; }
+#toast.success { border-color: var(--green); color: var(--green); }
+
+/* ── Running indicator ─────────────────────────────────── */
+.running-label { font-size: 11px; color: var(--muted); }
+
+/* ── Scrollbar (list) ──────────────────────────────────── */
+#list { scrollbar-gutter: stable; }
 </style>
 </head>
 <body>
-
-<!-- ── DOM ─────────────────────────────────────────────────────────── -->
 <div id="app">
-
+  <!-- Header -->
   <div id="header">
-    <div style="display:flex;align-items:center;gap:12px;">
-      <div class="logo-wrap">
-        <svg width="20" height="22" viewBox="0 0 22 24" fill="none">
-          <rect x="4" y="5" width="14" height="17" rx="2.5" stroke="white" stroke-width="1.8"/>
-          <path d="M7.5 5V3A1.5 1.5 0 0 1 9 1.5h4A1.5 1.5 0 0 1 14.5 3v2" stroke="white" stroke-width="1.8"/>
-          <path d="M8 10.5h6M8 14h4" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
-        </svg>
-      </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="logo-wrap">📋</div>
       <div>
-        <div class="app-name">Smart Clipboard</div>
-        <div class="running-dot">
-          <div class="dot"></div>
-          <span class="running-label">جاهز</span>
-        </div>
+        <div class="app-title">حافظة ذكية</div>
+        <div class="running-label">جاهز··</div>
       </div>
     </div>
-    <button class="icon-btn" id="settings-btn" aria-label="الإعدادات">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="12" r="3" stroke="#666" stroke-width="2"/>
-        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="#666" stroke-width="2"/>
-      </svg>
-    </button>
+    <button id="settings-btn" onclick="openSettings()">⚙️</button>
   </div>
 
-  <button id="paste-btn">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-      <rect x="8" y="2" width="8" height="4" rx="1" stroke="white" stroke-width="1.8"/>
-      <rect x="4" y="5" width="16" height="17" rx="2.5" stroke="white" stroke-width="1.8"/>
-      <path d="M8 12h8M8 16h5" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
-    </svg>
-    اقرأ الحافظة الآن
-  </button>
-
-  <div id="stats">
-    <div class="stat-card"><div class="stat-num" style="color:var(--purple)" id="s-total">0</div><div class="stat-lbl">اليوم</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:var(--blue)"   id="s-email">0</div><div class="stat-lbl">إيميلات</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:var(--green)"  id="s-phone">0</div><div class="stat-lbl">أرقام</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:var(--amber)"  id="s-sens">0</div><div class="stat-lbl">حساس</div></div>
+  <!-- Filter chips -->
+  <div id="filter-bar">
+    <button class="chip active" data-cat="all" onclick="setFilter('all',this)">📎 الكل</button>
+    <button class="chip" data-cat="email" onclick="setFilter('email',this)">✉ بريد</button>
+    <button class="chip" data-cat="phone" onclick="setFilter('phone',this)">📞 هاتف</button>
+    <button class="chip" data-cat="url" onclick="setFilter('url',this)">🔗 روابط</button>
+    <button class="chip" data-cat="card" onclick="setFilter('card',this)">💳 بطاقة</button>
+    <button class="chip" data-cat="number" onclick="setFilter('number',this)">🔢 أرقام</button>
+    <button class="chip" data-cat="code" onclick="setFilter('code',this)">🔑 كلمة سر</button>
+    <button class="chip" data-cat="text" onclick="setFilter('text',this)">📝 نص</button>
   </div>
 
-  <div id="tabs">
-    <button class="tab on"  data-cat="all">الكل</button>
-    <button class="tab off" data-cat="email">✉ إيميل</button>
-    <button class="tab off" data-cat="phone">📞 هاتف</button>
-    <button class="tab off" data-cat="code">🔑 أكواد</button>
-    <button class="tab off" data-cat="card">💳 بطاقات</button>
-    <button class="tab off" data-cat="url">🔗 روابط</button>
-    <button class="tab off" data-cat="text">📝 نص</button>
-  </div>
+  <!-- Item list -->
+  <div id="list"></div>
 
-  <div id="content">
-    <div id="pinned-sec" hidden>
-      <div class="sec-head"><span class="sec-title">📌 مثبّت</span></div>
-      <div id="pinned-list"></div>
-    </div>
-    <div id="history-sec">
-      <div class="sec-head">
-        <span class="sec-title">السجل الأخير</span>
-        <button class="clear-btn" id="clear-btn">مسح الكل</button>
-      </div>
-      <div id="history-list"></div>
-    </div>
-    <div id="empty" style="display:none;text-align:center;padding:56px 24px;">
-      <div style="font-size:44px;margin-bottom:14px;">📋</div>
-      <div class="empty-h" style="font-size:16px;font-weight:700;color:var(--text2);margin-bottom:8px;">لا يوجد شيء بعد</div>
-      <div style="font-size:13px;color:var(--muted);line-height:1.7;">انسخ أي نص ثم اضغط<br>"اقرأ الحافظة الآن"</div>
-    </div>
+  <!-- Paste bar -->
+  <div id="paste-bar">
+    <button id="paste-btn" onclick="readClipboard()">📋 أضف من الحافظة</button>
+    <button id="settings-btn" onclick="openSettings()">⚙️</button>
   </div>
-
-  <nav id="nav">
-    <button class="nav-btn on" data-view="home"><span class="nav-ico">🏠</span><span class="nav-lbl">الرئيسية</span></button>
-    <button class="nav-btn" data-view="pinned"><span class="nav-ico">📌</span><span class="nav-lbl">المثبّت</span></button>
-    <button class="nav-btn" data-view="sensitive"><span class="nav-ico">🔒</span><span class="nav-lbl">حساس</span></button>
-  </nav>
 </div>
 
-<!-- Toast -->
+<!-- Detail overlay -->
+<div id="overlay" onclick="closeOverlay(event)">
+  <div id="overlay-sheet">
+    <div class="ov-header">
+      <span class="ov-icon" id="ov-icon"></span>
+      <div>
+        <div class="ov-label" id="ov-label"></div>
+        <div style="font-size:12px;color:var(--muted)" id="ov-time"></div>
+      </div>
+    </div>
+    <div class="ov-text" id="ov-text" onclick="revealSensitive(this)"></div>
+    <div class="ov-row">
+      <button class="ov-btn" onclick="ovCopy()"><span>📋</span> نسخ</button>
+      <button class="ov-btn" onclick="ovShare()"><span>🔗</span> شارك</button>
+      <button class="ov-btn danger" onclick="ovDelete()"><span>🗑</span> احذف</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm overlay -->
+<div id="confirm-overlay">
+  <div id="confirm-sheet">
+    <div class="confirm-title">تأكيد الحذف</div>
+    <div class="confirm-msg">هل تريد حذف هذا العنصر؟</div>
+    <div class="confirm-row">
+      <button class="confirm-btn cancel" onclick="cancelDelete()">إلغاء</button>
+      <button class="confirm-btn ok" onclick="confirmDelete()">حذف</button>
+    </div>
+  </div>
+</div>
+
+<!-- Settings panel -->
+<div id="settings-panel" onclick="closeSettings(event)">
+  <div id="settings-sheet">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div class="settings-title">⚙️ الإعدادات</div>
+      <button class="icon-btn" onclick="closeSettings(null,true)">✕</button>
+    </div>
+    <div class="settings-section">
+      <div class="settings-label">الخصوصية</div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-name">إخفاء البيانات الحساسة</div>
+          <div class="toggle-desc">يطمس كلمات السر والبطاقات تلقائيًا</div>
+        </div>
+        <button class="toggle" id="tog-sensitive" onclick="toggleS('hideSensitive',this)"></button>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-name">تجاهل المكررات</div>
+          <div class="toggle-desc">لا يحفظ نفس النص مرتين</div>
+        </div>
+        <button class="toggle" id="tog-dup" onclick="toggleS('ignoreDups',this)"></button>
+      </div>
+    </div>
+    <div class="settings-section">
+      <div class="settings-label">حذف تلقائي</div>
+      <div class="select-row">
+        <span style="font-size:14px">مدة الحفظ</span>
+        <select id="sel-clear" onchange="setAutoClear(this.value)">
+          <option value="never">أبداً</option>
+          <option value="1h">بعد ساعة</option>
+          <option value="1d">بعد يوم</option>
+        </select>
+      </div>
+    </div>
+    <div class="settings-section">
+      <div class="settings-label">إدارة البيانات</div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-name">حذف الكل (100)</div>
+          <div class="toggle-desc">يحذف جميع العناصر نهائيًا</div>
+        </div>
+        <button class="ov-btn danger" style="flex:0;padding:8px 14px;font-size:12px" onclick="clearAll()">احذف</button>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--muted);text-align:center">حافظة ذكية · v1.0 · خصوصيتك أولًا</div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
-<!-- Settings overlay -->
-<div id="overlay">
-  <div class="sheet">
-    <div class="sheet-handle"></div>
-    <div class="sheet-title">⚙️ الإعدادات</div>
-
-    <div class="sec-lbl">الخصوصية</div>
-    <div class="sg">
-      <div class="sr">
-        <div class="sr-info">
-          <span class="sr-ico">🔒</span>
-          <div><div class="sr-name">إخفاء البيانات الحساسة</div><div class="sr-sub">إخفاء كلمات السر والبطاقات</div></div>
-        </div>
-        <button class="toggle on" id="t-mask"><span class="knob"></span></button>
-      </div>
-    </div>
-
-    <div class="sec-lbl">مسح تلقائي</div>
-    <div class="sg">
-      <div class="sr" style="flex-direction:column;align-items:flex-start;gap:12px;">
-        <div class="sr-info">
-          <span class="sr-ico">⏱</span>
-          <div><div class="sr-name">مسح السجل بعد</div><div class="sr-sub" id="clear-sub">لا يُمسح أبداً</div></div>
-        </div>
-        <div class="chips">
-          <button class="chip off" data-cl="1h">ساعة</button>
-          <button class="chip off" data-cl="24h">يوم</button>
-          <button class="chip on"  data-cl="never">أبداً</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="sec-lbl">عن التطبيق</div>
-    <div class="sg">
-      <div class="sr">
-        <div class="sr-name" style="color:var(--text2);">الإصدار</div>
-        <div style="color:var(--muted);font-size:13px;">1.0.0</div>
-      </div>
-      <div class="sr" id="del-all" style="cursor:pointer;">
-        <div class="sr-name" style="color:var(--red);">مسح جميع البيانات</div>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="#EF4444" stroke-width="2" stroke-linecap="round"/></svg>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Confirm dialog (replaces window.confirm) -->
-<div id="confirm-overlay">
-  <div class="confirm-box">
-    <div class="confirm-title" id="c-title"></div>
-    <div class="confirm-msg"   id="c-msg"></div>
-    <div class="confirm-btns">
-      <button class="confirm-cancel" id="c-cancel">إلغاء</button>
-      <button class="confirm-ok"     id="c-ok">تأكيد</button>
-    </div>
-  </div>
-</div>
-
 <script>
-// ── Android Bridge Detection ──────────────────────────────────────
 const isAndroid = typeof Android !== 'undefined';
 
-// ── State ─────────────────────────────────────────────────────────
-const S = {
-  items: [],
-  pinned: new Set(),
-  tab: 'all',
-  view: 'home',
-  mask: true,
-  revealed: new Set(),
-  autoClear: 'never',
-};
-
-// ── Persist ───────────────────────────────────────────────────────
-const SKEY = 'sc2_';
-function save() {
-  try {
-    localStorage.setItem(SKEY+'items',  JSON.stringify(S.items.slice(0,300)));
-    localStorage.setItem(SKEY+'pinned', JSON.stringify([...S.pinned]));
-    localStorage.setItem(SKEY+'mask',   S.mask ? '1' : '0');
-    localStorage.setItem(SKEY+'clear',  S.autoClear);
-  } catch(_) {}
-}
+// ── Storage ──────────────────────────────────────────────
+const KEY = 'scm_v2';
+let S = { items:[], hideSensitive:true, ignoreDups:true, autoClear:'never' };
 function load() {
   try {
-    const it = localStorage.getItem(SKEY+'items');
-    if (it) S.items = JSON.parse(it);
-    const pi = localStorage.getItem(SKEY+'pinned');
-    if (pi) S.pinned = new Set(JSON.parse(pi));
-    S.mask      = localStorage.getItem(SKEY+'mask')  !== '0';
-    S.autoClear = localStorage.getItem(SKEY+'clear') || 'never';
-    applyClear();
-  } catch(_) {}
+    const d = JSON.parse(localStorage.getItem(KEY));
+    if (d) S = {...S, ...d};
+  } catch(e){}
 }
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){}
+}
+load();
+
+// ── Settings helpers ──────────────────────────────────────
+function toggleS(key, btn) {
+  S[key] = !S[key];
+  btn.classList.toggle('on', S[key]);
+  save();
+}
+function setAutoClear(v) { S.autoClear = v; save(); }
+function clearAll() {
+  openConfirm('هل تريد حذف جميع ' + S.items.length + ' عنصر؟', () => {
+    S.items = []; save(); render(); closeSettings(null, true);
+  });
+}
+
+// ── Filter ────────────────────────────────────────────────
+let activeFilter = 'all';
+function setFilter(cat, btn) {
+  activeFilter = cat;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+// ── Render ───────────────────────────────────────────────
+function relTime(ts) {
+  const d = Date.now() - ts;
+  if (d < 60e3) return 'الآن';
+  if (d < 36e5) return Math.floor(d/60e3) + ' دق';
+  if (d < 864e5) return Math.floor(d/36e5) + ' سا';
+  return Math.floor(d/864e5) + ' ي';
+}
+function render() {
+  applyClear();
+  const list = document.getElementById('list');
+  const items = activeFilter === 'all' ? S.items : S.items.filter(i => i.cat === activeFilter);
+  if (!items.length) {
+    list.innerHTML = `<div id="empty"><div class="empty-icon">📋</div><p>لا يوجد عناصر<br>اضغط على "أضف من الحافظة" لإضافة محتوى</p></div>`;
+    return;
+  }
+  list.innerHTML = items.map(item => {
+    const blurClass = (S.hideSensitive && item.sensitive) ? ' blurred' : '';
+    return `<div class="card${item.sensitive?' sensitive':''}" style="background:${item.bg}" onclick="openItem('${item.id}')">
+      <div class="card-icon">${item.icon}</div>
+      <div>
+        <div class="card-label">${item.label}</div>
+        <div class="card-val${blurClass}">${escHtml(item.val)}</div>
+      </div>
+      <div class="card-actions">
+        <div class="card-time">${relTime(item.ts)}</div>
+        <button class="icon-btn" onclick="event.stopPropagation();copyItem('${item.id}')">📋</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Auto-clear ───────────────────────────────────────────
 function applyClear() {
   if (S.autoClear === 'never') return;
   const cut = Date.now() - (S.autoClear === '1h' ? 36e5 : 864e5);
   S.items = S.items.filter(i => i.ts > cut);
 }
 
-// ── Categories ────────────────────────────────────────────────────
+// ── Categories ────────────────────────────────────────────
 const CATS = [
-  { cat:'email', label:'بريد إلكتروني', icon:'✉',  bg:'#121c2e', sensitive:false,
+  { cat:'email',  label:'بريد إلكتروني', icon:'✉',  bg:'#121c2e', sensitive:false,
     re:/^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/ },
-  { cat:'phone', label:'هاتف',           icon:'📞', bg:'#121f12', sensitive:false,
-    re:/^[\+\d][\d\s\-\(\)\.]{7,18}$/ },
-  { cat:'card',  label:'بطاقة بنكية',    icon:'💳', bg:'#12181e', sensitive:true,
-    re:/^\d[\d\s\-]{12,18}\d$/ },
-  { cat:'code',  label:'كلمة سر / كود',  icon:'🔑', bg:'#22150a', sensitive:true,
-    re:/^[A-Z0-9\-_]{4,8}(-[A-Z0-9]{4,8}){1,3}$|^\d{4,8}$/ },
-  { cat:'url',   label:'رابط',            icon:'🔗', bg:'#101028', sensitive:false,
+  { cat:'url',    label:'رابط',           icon:'🔗', bg:'#101028', sensitive:false,
     re:/^https?:\/\/.+/ },
+  { cat:'phone',  label:'هاتف',           icon:'📞', bg:'#121f12', sensitive:false,
+    re:/^(\+\d[\d\s\-\(\)\.]{7,18}|0\d[\d\s\-\(\)\.]{6,16}|\(\d+\)[\d\s\-\.]{5,14}|\d{2,4}[\-\s]\d{3,4}[\-\s]\d{3,8})$/ },
+  { cat:'card',   label:'بطاقة بنكية',   icon:'💳', bg:'#12181e', sensitive:true,
+    re:/^\d{4}[\s\-]?\d{4}[\s\-]?\d{4}[\s\-]?\d{4}\d{0,3}$/ },
+  { cat:'number', label:'رقم',            icon:'🔢', bg:'#0d1a1a', sensitive:false,
+    re:/^-?[٠-٩\d][٠-٩\d\s,\.]*$/ },
+  { cat:'code',   label:'كلمة سر / كود', icon:'🔑', bg:'#22150a', sensitive:true,
+    re:/^[A-Z0-9\-_]{4,8}(-[A-Z0-9]{4,8}){1,3}$/ },
 ];
 function categorize(raw) {
   const t = raw.trim();
@@ -506,7 +550,7 @@ function categorize(raw) {
   return { cat:'text', label:'نص عام', icon:'📝', bg:'#1a1a28', sensitive:false };
 }
 
-// ── Clipboard ─────────────────────────────────────────────────────
+// ── Clipboard ───────────────────────────────────────────
 async function readClipboard() {
   const btn = document.getElementById('paste-btn');
   btn.style.opacity = '.6';
@@ -520,7 +564,7 @@ async function readClipboard() {
       text = await navigator.clipboard.readText();
     }
     if (!text || !text.trim()) { toast('الحافظة فارغة'); return; }
-    if (S.items.some(i => i.val === text.trim())) { toast('موجود مسبقاً'); return; }
+    if (S.items.some(i => i.val === text.trim())) { toast('موجود مسبقًا'); return; }
     const c = categorize(text);
     if (!c) { toast('نص فارغ'); return; }
     const item = {
@@ -537,235 +581,117 @@ async function readClipboard() {
     if (e && e.name === 'NotAllowedError')
       toast('اسمح بالوصول للحافظة في المتصفح');
     else
-      toast('لا يمكن قراءة الحافظة');
+      toast('تعذر قراءة الحافظة');
+  } finally {
+    btn.style.opacity = '';
+    btn.textContent = '📋 أضف من الحافظة';
   }
-  btn.style.opacity = '';
-  btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="8" y="2" width="8" height="4" rx="1" stroke="white" stroke-width="1.8"/><rect x="4" y="5" width="16" height="17" rx="2.5" stroke="white" stroke-width="1.8"/><path d="M8 12h8M8 16h5" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg> اقرأ الحافظة الآن`;
 }
 
-// ── Confirm dialog ────────────────────────────────────────────────
-function confirm(title, msg, onOk) {
-  document.getElementById('c-title').textContent = title;
-  document.getElementById('c-msg').textContent   = msg;
-  document.getElementById('confirm-overlay').classList.add('open');
-  document.getElementById('c-ok').onclick = () => {
-    document.getElementById('confirm-overlay').classList.remove('open');
-    onOk();
-  };
-  document.getElementById('c-cancel').onclick = () =>
-    document.getElementById('confirm-overlay').classList.remove('open');
-}
-
-// ── Render ────────────────────────────────────────────────────────
-function timeAgo(ts) {
-  const d = Math.floor((Date.now()-ts)/1000);
-  if (d < 60) return 'الآن';
-  if (d < 3600) return Math.floor(d/60)+'د';
-  if (d < 86400) return Math.floor(d/3600)+'س';
-  return Math.floor(d/86400)+'ي';
-}
-function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
-function cardHTML(item, pinned) {
-  const rev = S.revealed.has(item.id);
-  const masked = item.sensitive && S.mask && !rev;
-  const dv = masked ? '●'.repeat(Math.min(item.val.length, 12)) : item.val;
-  const kindCls = item.sensitive ? 'clip-kind hot' : 'clip-kind';
-  const kindLbl = (item.sensitive ? '⚠ ' : '') + item.label;
-  const revBtn = item.sensitive
-    ? `<button class="act-btn reveal-btn" data-id="${item.id}">${rev?'🙈':'👁'}</button>` : '';
-  const cardCls = 'clip-card' + (item.sensitive?' sensitive':'') + (pinned?' pinned':'');
-  return `<div class="${cardCls}" data-id="${item.id}">
-    <div class="clip-ico" style="background:${item.bg}">${item.icon}</div>
-    <div class="clip-meta">
-      <div class="${kindCls}">${kindLbl}</div>
-      <div class="clip-val${masked?' masked':''}">${esc(dv)}</div>
-    </div>
-    <div class="clip-actions">
-      <span class="clip-time">${timeAgo(item.ts)}</span>
-      ${revBtn}
-      <button class="act-btn copy-btn" data-val="${esc(item.val)}">📋</button>
-      <button class="act-btn pin-btn"  data-id="${item.id}">${pinned?'⭐':'☆'}</button>
-      <button class="act-btn del-btn"  data-id="${item.id}">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
-    </div>
-  </div>`;
-}
-
-function getFiltered() {
-  if (S.view === 'pinned')    return S.items.filter(i => S.pinned.has(i.id));
-  if (S.view === 'sensitive') return S.items.filter(i => i.sensitive);
-  return S.tab === 'all' ? S.items : S.items.filter(i => i.cat === S.tab);
-}
-
-function render() {
-  const today = S.items.filter(i => Date.now()-i.ts < 86400000);
-  document.getElementById('s-total').textContent = today.length;
-  document.getElementById('s-email').textContent = today.filter(i=>i.cat==='email').length;
-  document.getElementById('s-phone').textContent = today.filter(i=>i.cat==='phone').length;
-  document.getElementById('s-sens') .textContent = today.filter(i=>i.sensitive).length;
-
-  const all = getFiltered();
-  const pinItems = (S.view==='home') ? all.filter(i=>S.pinned.has(i.id)) : [];
-  const histItems = (S.view==='home') ? all.filter(i=>!S.pinned.has(i.id)) : all;
-
-  const pSec = document.getElementById('pinned-sec');
-  const pList = document.getElementById('pinned-list');
-  if (pinItems.length) {
-    pSec.hidden = false;
-    pList.innerHTML = pinItems.map(i=>cardHTML(i,true)).join('');
-  } else {
-    pSec.hidden = true;
-    pList.innerHTML = '';
-  }
-
-  const hList = document.getElementById('history-list');
-  hList.innerHTML = histItems.map(i=>cardHTML(i,false)).join('');
-
-  const noItems = all.length === 0;
-  document.getElementById('empty').style.display = noItems ? '' : 'none';
-  document.getElementById('history-sec').style.display = (histItems.length===0 && !noItems) ? 'none' : '';
-}
-
-// ── Events ────────────────────────────────────────────────────────
-document.getElementById('content').addEventListener('click', e => {
-  const btn = e.target.closest('button');
-  if (!btn) return;
-  const id = btn.dataset.id;
-
-  if (btn.classList.contains('del-btn')) {
-    S.items = S.items.filter(i=>i.id!==id);
-    S.pinned.delete(id); S.revealed.delete(id);
-    save(); render();
-  }
-  else if (btn.classList.contains('pin-btn')) {
-    S.pinned.has(id) ? S.pinned.delete(id) : S.pinned.add(id);
-    save(); render();
-  }
-  else if (btn.classList.contains('copy-btn')) {
-    const val = btn.dataset.val;
-    if (isAndroid) {
-      // Use execCommand fallback which works reliably in Android WebView
-      const inp = document.createElement('textarea');
-      inp.value = val;
-      inp.style.cssText = 'position:fixed;opacity:0';
-      document.body.appendChild(inp);
-      inp.select(); document.execCommand('copy');
-      document.body.removeChild(inp);
-      toast('✓ تم النسخ', true);
-    } else {
-      navigator.clipboard.writeText(val).then(()=>toast('✓ تم النسخ', true)).catch(()=>{
-        const inp = document.createElement('textarea');
-        inp.value = val;
-        inp.style.cssText = 'position:fixed;opacity:0';
-        document.body.appendChild(inp);
-        inp.select(); document.execCommand('copy');
-        document.body.removeChild(inp);
-        toast('✓ تم النسخ', true);
-      });
-    }
-  }
-  else if (btn.classList.contains('reveal-btn')) {
-    S.revealed.has(id) ? S.revealed.delete(id) : S.revealed.add(id);
-    render();
-  }
-});
-
-document.getElementById('tabs').addEventListener('click', e => {
-  const t = e.target.closest('.tab');
-  if (!t) return;
-  document.querySelectorAll('.tab').forEach(el => { el.classList.remove('on'); el.classList.add('off'); });
-  t.classList.add('on'); t.classList.remove('off');
-  S.tab = t.dataset.cat;
-  render();
-});
-
-document.getElementById('nav').addEventListener('click', e => {
-  const btn = e.target.closest('.nav-btn');
-  if (!btn) return;
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('on'));
-  btn.classList.add('on');
-  S.view = btn.dataset.view;
-  document.getElementById('tabs').style.display = S.view === 'home' ? '' : 'none';
-  render();
-});
-
-document.getElementById('paste-btn').addEventListener('click', readClipboard);
-
-document.getElementById('clear-btn').addEventListener('click', () => {
-  confirm('مسح السجل', 'سيتم حذف كل العناصر غير المثبّتة.', () => {
-    S.items = S.items.filter(i => S.pinned.has(i.id));
-    S.revealed.clear(); save(); render();
-  });
-});
-
-document.getElementById('settings-btn').addEventListener('click', () => {
+// ── Detail overlay ──────────────────────────────────────
+let ovId = null;
+function openItem(id) {
+  const it = S.items.find(i => i.id === id);
+  if (!it) return;
+  ovId = id;
+  document.getElementById('ov-icon').textContent = it.icon;
+  document.getElementById('ov-label').textContent = it.label;
+  document.getElementById('ov-time').textContent = new Date(it.ts).toLocaleString('ar-EG');
+  const ot = document.getElementById('ov-text');
+  ot.textContent = it.val;
+  ot.className = 'ov-text' + ((S.hideSensitive && it.sensitive) ? ' blurred' : '');
   document.getElementById('overlay').classList.add('open');
-  syncSettUI();
-});
-document.getElementById('overlay').addEventListener('click', e => {
-  if (e.target === document.getElementById('overlay'))
+}
+function closeOverlay(e) {
+  if (e && e.target !== document.getElementById('overlay')) return;
+  document.getElementById('overlay').classList.remove('open');
+}
+function revealSensitive(el) {
+  el.classList.remove('blurred');
+}
+function ovCopy() {
+  const it = S.items.find(i => i.id === ovId);
+  if (!it) return;
+  copy(it.val);
+}
+function ovShare() {
+  const it = S.items.find(i => i.id === ovId);
+  if (!it) return;
+  if (navigator.share) navigator.share({ text: it.val }).catch(()=>{});
+  else copy(it.val);
+}
+function ovDelete() {
+  openConfirm('هل تريد حذف هذا العنصر؟', () => {
+    S.items = S.items.filter(i => i.id !== ovId);
+    save(); render();
     document.getElementById('overlay').classList.remove('open');
-});
-
-document.getElementById('t-mask').addEventListener('click', function() {
-  S.mask = !S.mask;
-  this.classList.toggle('on', S.mask);
-  this.classList.toggle('off', !S.mask);
-  S.revealed.clear(); save(); render();
-});
-
-document.querySelectorAll('.chip[data-cl]').forEach(chip => {
-  chip.addEventListener('click', () => {
-    document.querySelectorAll('.chip[data-cl]').forEach(c=>{c.classList.remove('on');c.classList.add('off');});
-    chip.classList.add('on'); chip.classList.remove('off');
-    S.autoClear = chip.dataset.cl;
-    const lbl = {'1h':'حذف بعد ساعة','24h':'حذف بعد يوم','never':'لا يُمسح أبداً'};
-    document.getElementById('clear-sub').textContent = lbl[S.autoClear];
-    save();
   });
-});
-
-document.getElementById('del-all').addEventListener('click', () => {
-  confirm('مسح كل البيانات', 'هذا لا يمكن التراجع عنه. سيتم حذف كل السجل والإعدادات.', () => {
-    try { localStorage.clear(); } catch(_) {}
-    S.items=[]; S.pinned.clear(); S.revealed.clear();
-    document.getElementById('overlay').classList.remove('open');
-    render(); toast('تم المسح');
-  });
-});
-
-function syncSettUI() {
-  const m = document.getElementById('t-mask');
-  m.classList.toggle('on', S.mask); m.classList.toggle('off', !S.mask);
-  document.querySelectorAll('.chip[data-cl]').forEach(c => {
-    c.classList.toggle('on', c.dataset.cl===S.autoClear);
-    c.classList.toggle('off', c.dataset.cl!==S.autoClear);
-  });
-  const lbl = {'1h':'حذف بعد ساعة','24h':'حذف بعد يوم','never':'لا يُمسح أبداً'};
-  document.getElementById('clear-sub').textContent = lbl[S.autoClear];
+}
+function copyItem(id) {
+  const it = S.items.find(i => i.id === id);
+  if (it) copy(it.val);
+}
+function copy(text) {
+  navigator.clipboard.writeText(text)
+    .then(() => toast('✓ تم النسخ', true))
+    .catch(() => {
+      const el = document.createElement('textarea');
+      el.value = text;
+      el.style.position = 'fixed'; el.style.opacity = '0';
+      document.body.appendChild(el);
+      el.select(); document.execCommand('copy');
+      document.body.removeChild(el);
+      toast('✓ تم النسخ', true);
+    });
 }
 
-// ── Toast ─────────────────────────────────────────────────────────
-let toastT;
+// ── Confirm ──────────────────────────────────────────────
+let confirmCb = null;
+function openConfirm(msg, cb) {
+  document.querySelector('.confirm-msg').textContent = msg;
+  confirmCb = cb;
+  document.getElementById('confirm-overlay').classList.add('open');
+}
+function cancelDelete() {
+  confirmCb = null;
+  document.getElementById('confirm-overlay').classList.remove('open');
+}
+function confirmDelete() {
+  document.getElementById('confirm-overlay').classList.remove('open');
+  if (confirmCb) { confirmCb(); confirmCb = null; }
+}
+
+// ── Settings panel ──────────────────────────────────────
+function openSettings() {
+  document.getElementById('tog-sensitive').classList.toggle('on', S.hideSensitive);
+  document.getElementById('tog-dup').classList.toggle('on', S.ignoreDups);
+  document.getElementById('sel-clear').value = S.autoClear;
+  document.getElementById('settings-panel').classList.add('open');
+}
+function closeSettings(e, force) {
+  if (!force && e && e.target !== document.getElementById('settings-panel')) return;
+  document.getElementById('settings-panel').classList.remove('open');
+}
+
+// ── System bars ─────────────────────────────────────────
+function syncBars() {
+  if (!isAndroid || !Android.setBars) return;
+  Android.setBars('#0D0D14', false);
+}
+
+// ── Toast ──────────────────────────────────────────────
+let toastTimer;
 function toast(msg, ok) {
   const el = document.getElementById('toast');
   el.textContent = msg;
-  el.classList.toggle('ok', !!ok);
-  el.classList.add('show');
-  clearTimeout(toastT);
-  toastT = setTimeout(()=>el.classList.remove('show'), 2200);
+  el.className = 'show' + (ok ? ' success' : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.className = '', 2200);
 }
 
-// ── Init ──────────────────────────────────────────────────────────
-load();
+// ── Init ────────────────────────────────────────────────
+syncBars();
 render();
-
-// Set system bars to match app theme
-if (isAndroid && typeof Android.setBars === 'function') {
-  Android.setBars('#0D0D14', false);
-}
 </script>
 </body>
 </html>
