@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
                 if (cm == null) return "";
                 ClipData data = cm.getPrimaryClip();
                 if (data == null || data.getItemCount() == 0) return "";
-                CharSequence text = data.getItem(0).coerceToText(MainActivity.this);
+                CharSequence text = data.getItemAt(0).coerceToText(MainActivity.this);
                 return text != null ? text.toString() : "";
             } catch (Exception e) {
                 return "";
