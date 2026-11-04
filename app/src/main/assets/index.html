@@ -39,407 +39,390 @@ body {
   padding-right: max(0px, env(safe-area-inset-right, 0px));
   padding-block: 0;
 }
-button { font-family: inherit; cursor: pointer; }
+button { font-family: inherit; cursor: pointer; border: none; }
 
 /* ── App Shell ─────────────────────────────────────── */
-#app { display: flex; flex-direction: column; height: 100%; max-width: 500px; margin: 0 auto; }
-
-/* Status bar safe area */
+#app {
+  display: flex; flex-direction: column;
+  height: 100%; max-width: 500px; margin: 0 auto;
+}
 #app::before {
-  content: "";
-  display: block;
+  content: ''; display: block; flex-shrink: 0;
   height: env(safe-area-inset-top, 0px);
   background: var(--bg);
-  flex-shrink: 0;
 }
 
 /* ── Header ─────────────────────────────────────────── */
 #header {
   flex-shrink: 0;
   display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 18px 12px;
+  padding: 12px 16px 8px;
 }
-.logo-wrap {
-  width: 42px; height: 42px;
-  background: linear-gradient(135deg, var(--purple), var(--purple2));
-  border-radius: 12px;
+.logo { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--purple), var(--purple2)); font-size: 20px; }
+.app-name { font-size: 17px; font-weight: 800; }
+.running-dot { display: flex; align-items: center; gap: 5px; }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+.running-label { font-size: 11px; color: var(--muted); }
+.icon-btn {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: var(--surface); border: 1px solid var(--border);
   display: flex; align-items: center; justify-content: center;
-  font-size: 22px;
+  cursor: pointer;
+  border: none; border-radius: 11px;
+  display: flex; align-items: center; justify-content: center;
 }
-.app-title { font-size: 18px; font-weight: 700; }
-.app-sub   { font-size: 11px; color: var(--text2); }
+.icon-btn svg { display: block; }
 
-/* ── Filter bar ─────────────────────────────────────── */
-#filter-bar {
+/* ── Paste CTA ─────────────────────────────────────────── */
+#paste-btn {
+  flex-shrink: 0;
+  width: calc(100% - 28px); margin: 0 14px calc(14px + env(safe-area-inset-bottom, 0px));
+  padding: 16px;
+  background: linear-gradient(135deg, var(--purple), var(--purple2));
+  border: none; border-radius: 16px;
+  color: white; font-size: 15px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  box-shadow: 0 4px 20px rgba(124,58,237,.35);
+  transition: transform .1s, opacity .1s;
+}
+#paste-btn:active { transform: scale(.98); opacity: .9; }
+
+/* ── Stats ─────────────────────────────────────────────── */
+#stats {
+  flex-shrink: 0;
+  display: flex; gap: 8px;
+  padding: 0 14px 12px;
+}
+.stat-card {
+  flex: 1; padding: 10px 8px;
+  background: var(--surface); border-radius: 12px;
+  text-align: center;
+}
+.stat-num { font-size: 20px; font-weight: 800; }
+.stat-lbl { font-size: 10px; color: var(--muted); font-weight: 600; margin-top: 2px; }
+
+/* ── Tabs ──────────────────────────────────────────────── */
+#tabs {
   flex-shrink: 0;
   display: flex; gap: 6px;
+  padding: 0 14px 10px;
+  overflow-x: auto; scrollbar-width: none;
+}
+#tabs::-webkit-scrollbar { display: none; }
+.tab {
+  padding: 7px 14px; border-radius: 20px; border: none;
+  font-size: 12px; font-weight: 700;
+  transition: background .15s, color .15s;
+}
+.tab.on  { background: var(--purple); color: white; }
+.tab.off { background: var(--elevated); color: var(--muted); }
+
+/* ── Scrollable content ──────────────────────────────────── */
+#content {
+  flex: 1; overflow-y: auto; overflow-x: hidden;
+  overscroll-behavior: contain;
   padding: 0 14px 12px;
-  overflow-x: auto;
-  scrollbar-width: none;
 }
-#filter-bar::-webkit-scrollbar { display: none; }
-.chip {
-  display: flex; align-items: center; gap: 5px;
-  padding: 5px 12px;
-  border-radius: 20px;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text2);
-  font-size: 12px; font-weight: 500;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: all .15s;
-}
-.chip.active { background: var(--purple); border-color: var(--purple); color: #fff; }
+#content::-webkit-scrollbar { display: none; }
 
-/* ── List ─────────────────────────────────────────────── */
-#list {
-  flex: 1; overflow-y: auto;
-  padding: 0 12px;
-  display: flex; flex-direction: column; gap: 8px;
-  scrollbar-width: thin; scrollbar-color: var(--dim) transparent;
+/* ── Section heads ─────────────────────────────────────── */
+.sec-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px;
 }
-#list::-webkit-scrollbar { width: 4px; }
-#list::-webkit-scrollbar-track { background: transparent; }
-#list::-webkit-scrollbar-thumb { background: var(--dim); border-radius: 2px; }
+.sec-title { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: .5px; text-transform: uppercase; }
+.sec-clear { font-size: 11px; color: var(--red); background: none; border: none; cursor: pointer; }
 
-.card {
-  display: grid;
-  grid-template-columns: 36px 1fr auto;
+/* ── Clipboard cards ────────────────────────────────────── */
+.clips { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+.clip-card {
+  display: grid; grid-template-columns: auto 1fr auto;
   gap: 10px; align-items: start;
-  padding: 12px 14px;
-  border-radius: 14px;
-  border: 1px solid transparent;
-  cursor: pointer;
-  transition: border-color .15s, transform .08s;
-  animation: slideIn .2s ease;
-}
-.card:active { transform: scale(.98); }
-.card.sensitive { border-color: rgba(245,158,11,.18); }
-@keyframes slideIn { from { opacity:0; transform: translateY(-8px); } to { opacity:1; transform: none; } }
-
-.card-icon { font-size: 20px; padding-top: 2px; }
-.card-label { font-size: 11px; font-weight: 600; color: var(--text2); letter-spacing: .3px; }
-.card-val {
-  font-size: 14px; font-weight: 500; color: var(--text);
-  word-break: break-all; white-space: pre-wrap;
-  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
-}
-.card-val.blurred { filter: blur(5px); user-select: none; }
-.card-val.expanded { -webkit-line-clamp: unset; }
-.card-time { font-size: 10px; color: var(--muted); white-space: nowrap; }
-
-.card-actions { display: flex; gap: 6px; align-items: center; }
-.icon-btn {
-  width: 30px; height: 30px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  background: rgba(255,255,255,.06); border: none;
-  font-size: 14px; color: var(--text2);
-  transition: background .15s;
-}
-.icon-btn:hover { background: rgba(255,255,255,.12); }
-
-/* ── Empty state ─────────────────────────────────────── */
-#empty {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 12px; flex: 1;
-  color: var(--text2);
-}
-#empty .empty-icon { font-size: 48px; opacity: .4; }
-#empty p { font-size: 14px; text-align: center; line-height: 1.6; }
-
-/* ── Paste button ─────────────────────────────────────── */
-#paste-bar {
-  flex-shrink: 0;
-  padding: 12px 16px;
-  display: flex; gap: 10px;
-}
-#paste-btn {
-  flex: 1;
-  padding: 14px;
-  background: linear-gradient(135deg, var(--purple), var(--purple2));
-  color: #fff; font-size: 16px; font-weight: 700;
-  border: none; border-radius: 14px;
-  transition: opacity .15s;
-}
-#paste-btn:active { opacity: .8; }
-#settings-btn {
-  width: 48px; height: 48px; margin: auto 0;
-  background: var(--surface);
+  padding: 12px 14px; border-radius: 14px;
   border: 1px solid var(--border);
-  border-radius: 12px;
-  font-size: 20px;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--text2); border: none;
+  background: var(--surface);
+  cursor: pointer;
+  transition: border-color .15s;
+  animation: slideIn .18s ease;
 }
+@keyframes slideIn { from { opacity:0; transform: translateY(-6px); } to { opacity:1; transform: none; } }
+.clip-card.sensitive { border-color: rgba(245,158,11,.25); }
+.clip-card.pinned  { border-color: rgba(124,58,237,.4); }
+.clip-icon { font-size: 20px; padding-top: 1px; }
+.clip-meta { overflow: hidden; }
+.clip-kind {
+  display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: .3px;
+  padding: 2px 7px; border-radius: 6px;
+  background: rgba(255,255,255,.07); color: var(--text2);
+  margin-bottom: 4px;
+}
+.clip-kind.hot { background: rgba(245,158,11,.12); color: var(--amber); }
+.clip-val {
+  font-size: 13px; font-weight: 500; color: var(--text);
+  white-space: pre-wrap; word-break: break-all;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.clip-val.masked { letter-spacing: 2px; }
+.clip-time { font-size: 10px; color: var(--muted); white-space: nowrap; margin-top: 4px; }
+.clip-actions { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
+.act-btn {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: rgba(255,255,255,.06); border: none; font-size: 13px;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.reveal-btn { font-size: 15px; }
 
-/* ── Detail overlay ───────────────────────────────────── */
-#overlay {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,.85);
-  z-index: 50;
+/* ── Empty state ─────────────────────────────────────────── */
+.empty {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 10px; padding: 48px 0; color: var(--muted);
+}
+.empty-ico { font-size: 40px; opacity: .4; }
+.empty p { font-size: 13px; text-align: center; line-height: 1.6; }
+
+/* ── Detail sheet ───────────────────────────────────────── */
+#detail-overlay {
+  position: fixed; inset: 0; z-index: 50;
+  background: rgba(0,0,0,.8);
   display: flex; align-items: flex-end;
   opacity: 0; pointer-events: none;
   transition: opacity .2s;
 }
-#overlay.open { opacity: 1; pointer-events: auto; }
-#overlay-sheet {
+#detail-overlay.open { opacity: 1; pointer-events: auto; }
+#detail-sheet {
   width: 100%; max-width: 500px; margin: 0 auto;
-  background: var(--elevated);
-  border-radius: 20px 20px 0 0;
+  background: var(--elevated); border-radius: 20px 20px 0 0;
   padding: 20px;
   padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
   display: flex; flex-direction: column; gap: 14px;
   transform: translateY(30px); transition: transform .2s;
 }
-#overlay.open #overlay-sheet { transform: none; }
-
-.ov-header { display: flex; align-items: center; gap: 10px; }
-.ov-icon { font-size: 28px; }
-.ov-label { font-size: 13px; font-weight: 700; color: var(--text2); letter-spacing: .3px; }
-.ov-text {
+#detail-overlay.open #detail-sheet { transform: none; }
+.d-header { display: flex; gap: 10px; align-items: center; }
+.d-icon { font-size: 26px; }
+.d-label { font-size: 12px; font-weight: 700; color: var(--text2); letter-spacing: .3px; }
+.d-time { font-size: 11px; color: var(--muted); }
+.d-val {
   font-size: 15px; white-space: pre-wrap; word-break: break-all;
-  max-height: 180px; overflow-y: auto;
+  max-height: 200px; overflow-y: auto;
   padding: 12px; border-radius: 10px; background: var(--surface);
 }
-.ov-text.blurred { filter: blur(6px); user-select: none; cursor: pointer; }
-.ov-row { display: flex; gap: 8px; }
-.ov-btn {
+.d-val.masked { filter: blur(5px); user-select: none; cursor: pointer; }
+.d-actions { display: flex; gap: 8px; }
+.d-btn {
   flex: 1; padding: 12px;
-  background: var(--surface); border: none;
-  border-radius: 12px; color: var(--text);
-  font-size: 14px; font-weight: 600;
+  background: var(--surface); border: none; border-radius: 12px;
+  color: var(--text); font-size: 14px; font-weight: 600;
   display: flex; align-items: center; justify-content: center; gap: 6px;
+  cursor: pointer;
 }
-.ov-btn.danger { color: var(--red); }
+.d-btn.danger { color: var(--red); }
 
-/* ── Confirm overlay ───────────────────────────────────── */
+/* ── Confirm overlay ────────────────────────────────────── */
 #confirm-overlay {
-  position: fixed; inset: 0;
+  position: fixed; inset: 0; z-index: 60;
   background: rgba(0,0,0,.7);
-  z-index: 60;
   display: flex; align-items: center; justify-content: center;
-  opacity: 0; pointer-events: none;
-  transition: opacity .15s;
   padding: 20px;
+  opacity: 0; pointer-events: none; transition: opacity .15s;
 }
 #confirm-overlay.open { opacity: 1; pointer-events: auto; }
 #confirm-sheet {
-  background: var(--elevated); border-radius: 16px;
-  padding: 24px 20px;
-  display: flex; flex-direction: column; gap: 16px;
-  width: 100%; max-width: 320px;
+  background: var(--elevated); border-radius: 16px; padding: 24px 20px;
+  display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 320px;
 }
-.confirm-title { font-size: 16px; font-weight: 700; text-align: center; }
-.confirm-msg { font-size: 13px; color: var(--text2); text-align: center; line-height: 1.6; }
-.confirm-row { display: flex; gap: 8px; }
-.confirm-btn {
-  flex: 1; padding: 12px;
-  border: none; border-radius: 10px;
-  font-size: 14px; font-weight: 700;
-}
-.confirm-btn.cancel { background: var(--surface); color: var(--text); }
-.confirm-btn.ok     { background: var(--red);     color: #fff; }
+#c-title { font-size: 16px; font-weight: 700; text-align: center; }
+#c-msg   { font-size: 13px; color: var(--text2); text-align: center; line-height: 1.6; }
+.c-row { display: flex; gap: 8px; }
+.c-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; }
+#c-cancel { background: var(--surface); color: var(--text); }
+#c-ok     { background: var(--red);     color: white; }
 
-/* ── Settings panel ────────────────────────────────────── */
-#settings-panel {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,.85);
-  z-index: 70;
+/* ── Settings sheet ────────────────────────────────────── */
+#settings-overlay {
+  position: fixed; inset: 0; z-index: 70;
+  background: rgba(0,0,0,.8);
   display: flex; align-items: flex-end;
-  opacity: 0; pointer-events: none;
-  transition: opacity .2s;
+  opacity: 0; pointer-events: none; transition: opacity .2s;
 }
-#settings-panel.open { opacity: 1; pointer-events: auto; }
+#settings-overlay.open { opacity: 1; pointer-events: auto; }
 #settings-sheet {
   width: 100%; max-width: 500px; margin: 0 auto;
-  background: var(--elevated);
-  border-radius: 20px 20px 0 0;
+  background: var(--elevated); border-radius: 20px 20px 0 0;
   padding: 20px;
   padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
-  display: flex; flex-direction: column; gap: 18px;
+  display: flex; flex-direction: column; gap: 16px;
   transform: translateY(30px); transition: transform .2s;
   max-height: 80vh; overflow-y: auto;
 }
-#settings-panel.open #settings-sheet { transform: none; }
-
-.settings-title { font-size: 16px; font-weight: 700; }
-.settings-section { display: flex; flex-direction: column; gap: 10px; }
-.settings-label { font-size: 11px; font-weight: 600; color: var(--text2); letter-spacing: .4px; text-transform: uppercase; }
-.toggle-row {
+#settings-overlay.open #settings-sheet { transform: none; }
+.s-title { font-size: 16px; font-weight: 700; }
+.s-section { display: flex; flex-direction: column; gap: 2px; }
+.s-label { font-size: 10px; font-weight: 700; color: var(--muted); letter-spacing: .5px; text-transform: uppercase; margin-bottom: 6px; }
+.s-row {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--border);
+  padding: 11px 0; border-bottom: 1px solid var(--border);
 }
-.toggle-row:last-child { border-bottom: none; }
-.toggle-info { display: flex; flex-direction: column; gap: 2px; }
-.toggle-name { font-size: 14px; font-weight: 500; }
-.toggle-desc { font-size: 11px; color: var(--muted); }
-.toggle {
-  position: relative;
-  width: 44px; height: 24px;
-  background: var(--dim); border-radius: 12px;
-  transition: background .2s;
-  cursor: pointer; border: none;
-  flex-shrink: 0;
+.s-row:last-child { border-bottom: none; }
+.s-name { font-size: 14px; font-weight: 500; }
+.s-desc { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.tog {
+  width: 42px; height: 24px; border-radius: 12px;
+  background: var(--dim); border: none; position: relative;
+  cursor: pointer; transition: background .2s; flex-shrink: 0;
 }
-.toggle::after {
+.tog::after {
   content: ''; position: absolute;
   width: 18px; height: 18px; border-radius: 50%;
-  background: #fff; top: 3px; right: 3px;
+  background: white; top: 3px; right: 3px;
   transition: transform .2s;
 }
-.toggle.on { background: var(--purple); }
-.toggle.on::after { transform: translateX(-20px); }
-
-.select-row {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--border);
-}
-.select-row:last-child { border-bottom: none; }
+.tog.on { background: var(--purple); }
+.tog.on::after { transform: translateX(-18px); }
 select {
   background: var(--surface); color: var(--text);
   border: 1px solid var(--dim); border-radius: 8px;
   padding: 6px 10px; font-size: 13px; font-family: inherit;
 }
 
-/* ── Toast ───────────────────────────────────────────── */
+/* ── Toast ────────────────────────────────────────────── */
 #toast {
-  position: fixed; bottom: calc(80px + env(safe-area-inset-bottom, 0px));
-  left: 50%; transform: translateX(-50%) translateY(20px);
-  background: var(--elevated);
-  color: var(--text);
+  position: fixed; z-index: 100;
+  bottom: calc(90px + env(safe-area-inset-bottom, 0px));
+  left: 50%; transform: translateX(-50%) translateY(16px);
+  background: var(--elevated); color: var(--text);
   padding: 10px 18px; border-radius: 20px;
   font-size: 13px; font-weight: 600;
-  opacity: 0; transition: all .2s;
-  pointer-events: none; white-space: nowrap;
   border: 1px solid var(--border);
-  z-index: 100;
+  opacity: 0; transition: all .2s; pointer-events: none; white-space: nowrap;
 }
 #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-#toast.success { border-color: var(--green); color: var(--green); }
-
-/* ── Running indicator ─────────────────────────────────── */
-.running-label { font-size: 11px; color: var(--muted); }
-
-/* ── Scrollbar (list) ──────────────────────────────────── */
-#list { scrollbar-gutter: stable; }
+#toast.ok   { border-color: var(--green); color: var(--green); }
 </style>
 </head>
 <body>
 <div id="app">
+
   <!-- Header -->
   <div id="header">
-    <div style="display:flex;align-items:center;gap:12px">
-      <div class="logo-wrap">📋</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="logo">📋</div>
       <div>
-        <div class="app-title">حافظة ذكية</div>
-        <div class="running-label">جاهز··</div>
+        <div class="app-name">حافظة ذكية</div>
+        <div class="running-dot">
+          <div class="dot"></div>
+          <span class="running-label">جاهز</span>
+        </div>
       </div>
     </div>
-    <button id="settings-btn" onclick="openSettings()">⚙️</button>
+    <button class="icon-btn" id="settings-btn" aria-label="الإعدادات">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="3" stroke="#666" stroke-width="2"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="#666" stroke-width="2"/>
+      </svg>
+    </button>
   </div>
 
-  <!-- Filter chips -->
-  <div id="filter-bar">
-    <button class="chip active" data-cat="all" onclick="setFilter('all',this)">📎 الكل</button>
-    <button class="chip" data-cat="email" onclick="setFilter('email',this)">✉ بريد</button>
-    <button class="chip" data-cat="phone" onclick="setFilter('phone',this)">📞 هاتف</button>
-    <button class="chip" data-cat="url" onclick="setFilter('url',this)">🔗 روابط</button>
-    <button class="chip" data-cat="card" onclick="setFilter('card',this)">💳 بطاقة</button>
-    <button class="chip" data-cat="number" onclick="setFilter('number',this)">🔢 أرقام</button>
-    <button class="chip" data-cat="code" onclick="setFilter('code',this)">🔑 كلمة سر</button>
-    <button class="chip" data-cat="text" onclick="setFilter('text',this)">📝 نص</button>
+  <button id="paste-btn">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="8" y="2" width="8" height="4" rx="1" stroke="white" stroke-width="1.8"/><rect x="4" y="5" width="16" height="17" rx="2.5" stroke="white" stroke-width="1.8"/><path d="M8 12h8M8 16h5" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
+    اقرأ الحافظة الآن
+  </button>
+
+  <div id="stats">
+    <div class="stat-card"><div class="stat-num" style="color:var(--purple)" id="s-total">0</div><div class="stat-lbl">اليوم</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--blue)"   id="s-email">0</div><div class="stat-lbl">إيميلات</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--green)"  id="s-phone">0</div><div class="stat-lbl">أرقام</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--amber)"  id="s-sens">0</div><div class="stat-lbl">حساس</div></div>
   </div>
 
-  <!-- Item list -->
-  <div id="list"></div>
+  <!-- Tabs -->
+  <div id="tabs">
+    <button class="tab on"  data-cat="all">الكل</button>
+    <button class="tab off" data-cat="email">✉ بريد</button>
+    <button class="tab off" data-cat="phone">📞 هاتف</button>
+    <button class="tab off" data-cat="url">🔗 روابط</button>
+    <button class="tab off" data-cat="card">💳 بطاقة</button>
+    <button class="tab off" data-cat="number">🔢 أرقام</button>
+    <button class="tab off" data-cat="code">🔑 كود</button>
+    <button class="tab off" data-cat="text">📝 نص</button>
+  </div>
 
-  <!-- Paste bar -->
-  <div id="paste-bar">
-    <button id="paste-btn" onclick="readClipboard()">📋 أضف من الحافظة</button>
-    <button id="settings-btn" onclick="openSettings()">⚙️</button>
+  <!-- Content -->
+  <div id="content"></div>
+
+</div><!-- #app -->
+
+<!-- Detail sheet -->
+<div id="detail-overlay">
+  <div id="detail-sheet">
+    <div class="d-header">
+      <span class="d-icon" id="d-icon"></span>
+      <div>
+        <div class="d-label" id="d-label"></div>
+        <div class="d-time"  id="d-time"></div>
+      </div>
+    </div>
+    <div class="d-val" id="d-val" onclick="revealDetail(this)"></div>
+    <div class="d-actions">
+      <button class="d-btn" id="d-copy">📋 نسخ</button>
+      <button class="d-btn" id="d-share">🔗 شارك</button>
+      <button class="d-btn" id="d-pin">📌 ثبّت</button>
+      <button class="d-btn danger" id="d-del">🗑 احذف</button>
+    </div>
   </div>
 </div>
 
-<!-- Detail overlay -->
-<div id="overlay" onclick="closeOverlay(event)">
-  <div id="overlay-sheet">
-    <div class="ov-header">
-      <span class="ov-icon" id="ov-icon"></span>
-      <div>
-        <div class="ov-label" id="ov-label"></div>
-        <div style="font-size:12px;color:var(--muted)" id="ov-time"></div>
-      </div>
-    </div>
-    <div class="ov-text" id="ov-text" onclick="revealSensitive(this)"></div>
-    <div class="ov-row">
-      <button class="ov-btn" onclick="ovCopy()"><span>📋</span> نسخ</button>
-      <button class="ov-btn" onclick="ovShare()"><span>🔗</span> شارك</button>
-      <button class="ov-btn danger" onclick="ovDelete()"><span>🗑</span> احذف</button>
-    </div>
-  </div>
-</div>
-
-<!-- Confirm overlay -->
+<!-- Confirm -->
 <div id="confirm-overlay">
   <div id="confirm-sheet">
-    <div class="confirm-title">تأكيد الحذف</div>
-    <div class="confirm-msg">هل تريد حذف هذا العنصر؟</div>
-    <div class="confirm-row">
-      <button class="confirm-btn cancel" onclick="cancelDelete()">إلغاء</button>
-      <button class="confirm-btn ok" onclick="confirmDelete()">حذف</button>
+    <div id="c-title"></div>
+    <div id="c-msg"></div>
+    <div class="c-row">
+      <button class="c-btn" id="c-cancel">إلغاء</button>
+      <button class="c-btn" id="c-ok">حذف</button>
     </div>
   </div>
 </div>
 
-<!-- Settings panel -->
-<div id="settings-panel" onclick="closeSettings(event)">
+<!-- Settings -->
+<div id="settings-overlay">
   <div id="settings-sheet">
     <div style="display:flex;align-items:center;justify-content:space-between">
-      <div class="settings-title">⚙️ الإعدادات</div>
-      <button class="icon-btn" onclick="closeSettings(null,true)">✕</button>
+      <div class="s-title">الإعدادات</div>
+      <button class="act-btn" id="settings-close">✕</button>
     </div>
-    <div class="settings-section">
-      <div class="settings-label">الخصوصية</div>
-      <div class="toggle-row">
-        <div class="toggle-info">
-          <div class="toggle-name">إخفاء البيانات الحساسة</div>
-          <div class="toggle-desc">يطمس كلمات السر والبطاقات تلقائيًا</div>
-        </div>
-        <button class="toggle" id="tog-sensitive" onclick="toggleS('hideSensitive',this)"></button>
+    <div class="s-section">
+      <div class="s-label">الخصوصية</div>
+      <div class="s-row">
+        <div><div class="s-name">إخفاء البيانات الحساسة</div><div class="s-desc">يطمس كلمات السر تلقائيًا</div></div>
+        <button class="tog" id="tog-mask"></button>
       </div>
-      <div class="toggle-row">
-        <div class="toggle-info">
-          <div class="toggle-name">تجاهل المكررات</div>
-          <div class="toggle-desc">لا يحفظ نفس النص مرتين</div>
-        </div>
-        <button class="toggle" id="tog-dup" onclick="toggleS('ignoreDups',this)"></button>
+      <div class="s-row">
+        <div><div class="s-name">تجاهل المكرر</div><div class="s-desc">لا يحفظ نفس النص مرتين</div></div>
+        <button class="tog" id="tog-dup"></button>
       </div>
     </div>
-    <div class="settings-section">
-      <div class="settings-label">حذف تلقائي</div>
-      <div class="select-row">
-        <span style="font-size:14px">مدة الحفظ</span>
-        <select id="sel-clear" onchange="setAutoClear(this.value)">
-          <option value="never">أبداً</option>
-          <option value="1h">بعد ساعة</option>
-          <option value="1d">بعد يوم</option>
+    <div class="s-section">
+      <div class="s-label">حذف تلقائي</div>
+      <div class="s-row">
+        <div class="s-name">مدة الحفظ</div>
+        <select id="sel-keep">
+          <option value="never">أبدًا</option>
+          <option value="1h">ساعة</option>
+          <option value="1d">يوم</option>
+          <option value="7d">أسبوع</option>
         </select>
       </div>
     </div>
-    <div class="settings-section">
-      <div class="settings-label">إدارة البيانات</div>
-      <div class="toggle-row">
-        <div class="toggle-info">
-          <div class="toggle-name">حذف الكل (100)</div>
-          <div class="toggle-desc">يحذف جميع العناصر نهائيًا</div>
-        </div>
-        <button class="ov-btn danger" style="flex:0;padding:8px 14px;font-size:12px" onclick="clearAll()">احذف</button>
+    <div class="s-section">
+      <div class="s-label">بيانات</div>
+      <div class="s-row">
+        <div class="s-name">حذف الكل</div>
+        <button class="act-btn" id="clear-all-btn" style="padding:6px 14px;border-radius:8px;background:var(--red);color:white;font-size:12px">حذف</button>
       </div>
     </div>
-    <div style="font-size:11px;color:var(--muted);text-align:center">حافظة ذكية · v1.0 · خصوصيتك أولًا</div>
+    <div style="font-size:11px;color:var(--muted);text-align:center">حافظة ذكية v1.1 · خصوصيتك أولًا</div>
   </div>
 </div>
 
@@ -450,81 +433,29 @@ const isAndroid = typeof Android !== 'undefined';
 
 // ── Storage ──────────────────────────────────────────────
 const KEY = 'scm_v2';
-let S = { items:[], hideSensitive:true, ignoreDups:true, autoClear:'never' };
+let S = {
+  items: [], pinned: [],
+  mask: true, dedupe: true,
+  keep: 'never',
+  revealed: new Set()
+};
 function load() {
   try {
-    const d = JSON.parse(localStorage.getItem(KEY));
-    if (d) S = {...S, ...d};
-  } catch(e){}
+    const d = JSON.parse(localStorage.getItem(KEY) || 'null');
+    if (d) {
+      S = { ...S, ...d };
+      S.revealed = new Set(d.revealed || []);
+      S.pinned   = d.pinned || [];
+    }
+  } catch(e) {}
 }
 function save() {
-  try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){}
+  try {
+    const d = { ...S, revealed: [...S.revealed] };
+    localStorage.setItem(KEY, JSON.stringify(d));
+  } catch(e) {}
 }
 load();
-
-// ── Settings helpers ──────────────────────────────────────
-function toggleS(key, btn) {
-  S[key] = !S[key];
-  btn.classList.toggle('on', S[key]);
-  save();
-}
-function setAutoClear(v) { S.autoClear = v; save(); }
-function clearAll() {
-  openConfirm('هل تريد حذف جميع ' + S.items.length + ' عنصر؟', () => {
-    S.items = []; save(); render(); closeSettings(null, true);
-  });
-}
-
-// ── Filter ────────────────────────────────────────────────
-let activeFilter = 'all';
-function setFilter(cat, btn) {
-  activeFilter = cat;
-  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-  btn.classList.add('active');
-  render();
-}
-
-// ── Render ───────────────────────────────────────────────
-function relTime(ts) {
-  const d = Date.now() - ts;
-  if (d < 60e3) return 'الآن';
-  if (d < 36e5) return Math.floor(d/60e3) + ' دق';
-  if (d < 864e5) return Math.floor(d/36e5) + ' سا';
-  return Math.floor(d/864e5) + ' ي';
-}
-function render() {
-  applyClear();
-  const list = document.getElementById('list');
-  const items = activeFilter === 'all' ? S.items : S.items.filter(i => i.cat === activeFilter);
-  if (!items.length) {
-    list.innerHTML = `<div id="empty"><div class="empty-icon">📋</div><p>لا يوجد عناصر<br>اضغط على "أضف من الحافظة" لإضافة محتوى</p></div>`;
-    return;
-  }
-  list.innerHTML = items.map(item => {
-    const blurClass = (S.hideSensitive && item.sensitive) ? ' blurred' : '';
-    return `<div class="card${item.sensitive?' sensitive':''}" style="background:${item.bg}" onclick="openItem('${item.id}')">
-      <div class="card-icon">${item.icon}</div>
-      <div>
-        <div class="card-label">${item.label}</div>
-        <div class="card-val${blurClass}">${escHtml(item.val)}</div>
-      </div>
-      <div class="card-actions">
-        <div class="card-time">${relTime(item.ts)}</div>
-        <button class="icon-btn" onclick="event.stopPropagation();copyItem('${item.id}')">📋</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-function escHtml(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-// ── Auto-clear ───────────────────────────────────────────
-function applyClear() {
-  if (S.autoClear === 'never') return;
-  const cut = Date.now() - (S.autoClear === '1h' ? 36e5 : 864e5);
-  S.items = S.items.filter(i => i.ts > cut);
-}
 
 // ── Categories ────────────────────────────────────────────
 const CATS = [
@@ -547,30 +478,51 @@ function categorize(raw) {
   for (const c of CATS) { if (c.re.test(t)) return c; }
   if (/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/.test(t))
     return { cat:'code', label:'كلمة سر', icon:'🔑', bg:'#22150a', sensitive:true };
+  // كشف ذكي: هل النص القصير يحتوي على نمط معروف؟
+  if (t.length <= 400) {
+    if (/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/.test(t))
+      return CATS.find(c => c.cat === 'email');
+    if (/https?:\/\/\S+/.test(t))
+      return CATS.find(c => c.cat === 'url');
+    if (/(\+\d[\d\s\-\(\)\.]{7,}|(?<![,\.\d])0\d{9,13}(?![,\.\d]))/.test(t))
+      return CATS.find(c => c.cat === 'phone');
+  }
   return { cat:'text', label:'نص عام', icon:'📝', bg:'#1a1a28', sensitive:false };
+}
+
+// ── Active filter ──────────────────────────────────────────
+let activeCat = 'all';
+
+// ── Auto-expire ───────────────────────────────────────────
+function expire() {
+  if (S.keep === 'never') return;
+  const ms = { '1h': 36e5, '1d': 864e5, '7d': 6048e5 }[S.keep];
+  if (!ms) return;
+  const cut = Date.now() - ms;
+  S.items  = S.items.filter(i => i.ts > cut);
+  S.pinned = S.pinned.filter(i => i.ts > cut);
 }
 
 // ── Clipboard ───────────────────────────────────────────
 async function readClipboard() {
   const btn = document.getElementById('paste-btn');
   btn.style.opacity = '.6';
-  btn.textContent = '...';
   try {
     let text = '';
     if (isAndroid) {
-      // Use Android bridge in WebView (works on file:// context)
       text = Android.getClipboard();
     } else {
       text = await navigator.clipboard.readText();
     }
     if (!text || !text.trim()) { toast('الحافظة فارغة'); return; }
-    if (S.items.some(i => i.val === text.trim())) { toast('موجود مسبقًا'); return; }
-    const c = categorize(text);
+    const val = text.trim();
+    if (S.dedupe && (S.items.some(i => i.val === val) || S.pinned.some(i => i.val === val)))
+      { toast('موجود مسبقًا'); return; }
+    const c = categorize(val);
     if (!c) { toast('نص فارغ'); return; }
     const item = {
-      id: Date.now().toString(36),
-      val: text.trim(), cat: c.cat,
-      label: c.label, icon: c.icon, bg: c.bg,
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2,5),
+      val, cat: c.cat, label: c.label, icon: c.icon, bg: c.bg,
       sensitive: c.sensitive, ts: Date.now()
     };
     S.items.unshift(item);
@@ -581,116 +533,242 @@ async function readClipboard() {
     if (e && e.name === 'NotAllowedError')
       toast('اسمح بالوصول للحافظة في المتصفح');
     else
-      toast('تعذر قراءة الحافظة');
-  } finally {
-    btn.style.opacity = '';
-    btn.textContent = '📋 أضف من الحافظة';
+      toast('لا يمكن قراءة الحافظة');
   }
+  btn.style.opacity = '';
+  btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="8" y="2" width="8" height="4" rx="1" stroke="white" stroke-width="1.8"/><rect x="4" y="5" width="16" height="17" rx="2.5" stroke="white" stroke-width="1.8"/><path d="M8 12h8M8 16h5" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg> اقرأ الحافظة الآن`;
 }
 
-// ── Detail overlay ──────────────────────────────────────
-let ovId = null;
-function openItem(id) {
-  const it = S.items.find(i => i.id === id);
-  if (!it) return;
-  ovId = id;
-  document.getElementById('ov-icon').textContent = it.icon;
-  document.getElementById('ov-label').textContent = it.label;
-  document.getElementById('ov-time').textContent = new Date(it.ts).toLocaleString('ar-EG');
-  const ot = document.getElementById('ov-text');
-  ot.textContent = it.val;
-  ot.className = 'ov-text' + ((S.hideSensitive && it.sensitive) ? ' blurred' : '');
-  document.getElementById('overlay').classList.add('open');
+// ── Confirm dialog ───────────────────────────────────────
+function confirm(title, msg, onOk) {
+  document.getElementById('c-title').textContent = title;
+  document.getElementById('c-msg').textContent   = msg;
+  document.getElementById('confirm-overlay').classList.add('open');
+  document.getElementById('c-ok').onclick = () => {
+    document.getElementById('confirm-overlay').classList.remove('open');
+    onOk();
+  };
+  document.getElementById('c-cancel').onclick = () =>
+    document.getElementById('confirm-overlay').classList.remove('open');
 }
-function closeOverlay(e) {
-  if (e && e.target !== document.getElementById('overlay')) return;
-  document.getElementById('overlay').classList.remove('open');
+
+// ── Render ───────────────────────────────────────────────
+function timeAgo(ts) {
+  const d = Math.floor((Date.now()-ts)/1000);
+  if (d < 60) return 'الآن';
+  if (d < 3600) return Math.floor(d/60)+'د';
+  if (d < 86400) return Math.floor(d/3600)+'س';
+  return Math.floor(d/86400)+'ي';
 }
-function revealSensitive(el) {
-  el.classList.remove('blurred');
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function cardHTML(item, pinned) {
+  const rev = S.revealed.has(item.id);
+  const masked = item.sensitive && S.mask && !rev;
+  const dv = masked ? '●'.repeat(Math.min(item.val.length, 12)) : item.val;
+  const kindCls = item.sensitive ? 'clip-kind hot' : 'clip-kind';
+  const kindLbl = (item.sensitive ? '⚠ ' : '') + item.label;
+  const revBtn = item.sensitive
+    ? `<button class="act-btn reveal-btn" data-id="${item.id}">${rev?'🙈':'👁'}</button>` : '';
+  const cardCls = 'clip-card' + (item.sensitive?' sensitive':'') + (pinned?' pinned':'');
+  return `<div class="${cardCls}" data-id="${item.id}">
+    <div class="clip-icon">${item.icon}</div>
+    <div class="clip-meta">
+      <div class="${kindCls}">${kindLbl}</div>
+      <div class="clip-val${masked?' masked':''}">${esc(dv)}</div>
+      <div class="clip-time">${timeAgo(item.ts)}</div>
+    </div>
+    <div class="clip-actions">
+      <button class="act-btn copy-btn" data-id="${item.id}">📋</button>
+      ${revBtn}
+    </div>
+  </div>`;
 }
-function ovCopy() {
-  const it = S.items.find(i => i.id === ovId);
-  if (!it) return;
-  copy(it.val);
-}
-function ovShare() {
-  const it = S.items.find(i => i.id === ovId);
-  if (!it) return;
-  if (navigator.share) navigator.share({ text: it.val }).catch(()=>{});
-  else copy(it.val);
-}
-function ovDelete() {
-  openConfirm('هل تريد حذف هذا العنصر؟', () => {
-    S.items = S.items.filter(i => i.id !== ovId);
-    save(); render();
-    document.getElementById('overlay').classList.remove('open');
+
+function render() {
+  expire();
+  const el = document.getElementById('content');
+  const cat = activeCat;
+  const filter = item => cat === 'all' || item.cat === cat;
+  const pinned = S.pinned.filter(filter);
+  const items  = S.items.filter(filter);
+
+  let html = '';
+
+  if (pinned.length) {
+    html += `<div class="sec-head"><span class="sec-title">📌 مثبت</span></div>`;
+    html += `<div class="clips">${pinned.map(i=>cardHTML(i,true)).join('')}</div>`;
+  }
+  if (items.length) {
+    html += `<div class="sec-head">
+      <span class="sec-title">الحديث · ${items.length}</span>
+      <button class="sec-clear" id="clear-recent">حذف الكل</button>
+    </div>`;
+    html += `<div class="clips">${items.map(i=>cardHTML(i,false)).join('')}</div>`;
+  }
+  if (!pinned.length && !items.length) {
+    html = `<div class="empty">
+      <div class="empty-ico">📋</div>
+      <p>لا يوجد عناصر<br>اضغط على "اقرأ الحافظة الآن" لإضافة محتوى</p>
+    </div>`;
+  }
+  el.innerHTML = html;
+
+  // Stats
+  const today = Date.now() - 864e5;
+  const all = [...S.pinned, ...S.items];
+  document.getElementById('s-total').textContent = all.filter(i=>i.ts>today).length;
+  document.getElementById('s-email').textContent = all.filter(i=>i.cat==='email').length;
+  document.getElementById('s-phone').textContent = all.filter(i=>i.cat==='phone'||i.cat==='number').length;
+  document.getElementById('s-sens').textContent  = all.filter(i=>i.sensitive).length;
+
+  // Tabs count
+  document.querySelectorAll('#tabs .tab').forEach(btn => {
+    const c = btn.dataset.cat;
+    const n = c==='all' ? all.length :
+              [...S.pinned,...S.items].filter(i=>i.cat===c).length;
+    btn.textContent = btn.textContent.replace(/\s*\(\d+\)/,'') + (n ? ` (${n})` : '');
   });
 }
-function copyItem(id) {
-  const it = S.items.find(i => i.id === id);
-  if (it) copy(it.val);
+
+// ── Detail sheet ─────────────────────────────────────────
+let detailId = null;
+function openDetail(id) {
+  const item = [...S.pinned, ...S.items].find(i => i.id === id);
+  if (!item) return;
+  detailId = id;
+  document.getElementById('d-icon').textContent  = item.icon;
+  document.getElementById('d-label').textContent = item.label;
+  document.getElementById('d-time').textContent  = new Date(item.ts).toLocaleString('ar-EG');
+  const dv = document.getElementById('d-val');
+  dv.textContent = item.val;
+  dv.className   = 'd-val' + ((item.sensitive && S.mask && !S.revealed.has(id)) ? ' masked' : '');
+  document.getElementById('detail-overlay').classList.add('open');
 }
-function copy(text) {
-  navigator.clipboard.writeText(text)
+function revealDetail(el) { el.classList.remove('masked'); }
+
+// ── Event delegation ──────────────────────────────────────
+document.getElementById('content').addEventListener('click', e => {
+  const copyBtn  = e.target.closest('.copy-btn');
+  const revBtn   = e.target.closest('.reveal-btn');
+  const clearBtn = e.target.closest('#clear-recent');
+  const card     = e.target.closest('.clip-card');
+  if (copyBtn)  { e.stopPropagation(); copyText(copyBtn.dataset.id); return; }
+  if (revBtn)   { e.stopPropagation(); toggleReveal(revBtn.dataset.id); return; }
+  if (clearBtn) { confirmClearRecent(); return; }
+  if (card)     { openDetail(card.dataset.id); }
+});
+
+function copyText(id) {
+  const item = [...S.pinned, ...S.items].find(i => i.id === id);
+  if (!item) return;
+  navigator.clipboard.writeText(item.val)
     .then(() => toast('✓ تم النسخ', true))
-    .catch(() => {
-      const el = document.createElement('textarea');
-      el.value = text;
-      el.style.position = 'fixed'; el.style.opacity = '0';
-      document.body.appendChild(el);
-      el.select(); document.execCommand('copy');
-      document.body.removeChild(el);
-      toast('✓ تم النسخ', true);
-    });
+    .catch(() => toast('فشل النسخ'));
+}
+function toggleReveal(id) {
+  if (S.revealed.has(id)) S.revealed.delete(id); else S.revealed.add(id);
+  save(); render();
+}
+function confirmClearRecent() {
+  confirm('تأكيد', 'حذف كل العناصر غير المثبتة؟', () => {
+    S.items = []; save(); render();
+  });
 }
 
-// ── Confirm ──────────────────────────────────────────────
-let confirmCb = null;
-function openConfirm(msg, cb) {
-  document.querySelector('.confirm-msg').textContent = msg;
-  confirmCb = cb;
-  document.getElementById('confirm-overlay').classList.add('open');
-}
-function cancelDelete() {
-  confirmCb = null;
-  document.getElementById('confirm-overlay').classList.remove('open');
-}
-function confirmDelete() {
-  document.getElementById('confirm-overlay').classList.remove('open');
-  if (confirmCb) { confirmCb(); confirmCb = null; }
-}
+// ── Detail actions ────────────────────────────────────────
+document.getElementById('d-copy').onclick = () => copyText(detailId);
+document.getElementById('d-share').onclick = () => {
+  const item = [...S.pinned, ...S.items].find(i => i.id === detailId);
+  if (!item) return;
+  if (navigator.share) navigator.share({ text: item.val }).catch(()=>{});
+  else copyText(detailId);
+};
+document.getElementById('d-pin').onclick = () => {
+  const idx = S.items.findIndex(i => i.id === detailId);
+  if (idx !== -1) {
+    const [item] = S.items.splice(idx, 1);
+    S.pinned.unshift(item);
+  } else {
+    const pidx = S.pinned.findIndex(i => i.id === detailId);
+    if (pidx !== -1) {
+      const [item] = S.pinned.splice(pidx, 1);
+      S.items.unshift(item);
+    }
+  }
+  save(); render();
+  document.getElementById('detail-overlay').classList.remove('open');
+};
+document.getElementById('d-del').onclick = () => {
+  confirm('حذف', 'حذف هذا العنصر؟', () => {
+    S.items  = S.items.filter(i => i.id !== detailId);
+    S.pinned = S.pinned.filter(i => i.id !== detailId);
+    save(); render();
+    document.getElementById('detail-overlay').classList.remove('open');
+  });
+};
+document.getElementById('detail-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('detail-overlay'))
+    document.getElementById('detail-overlay').classList.remove('open');
+});
 
-// ── Settings panel ──────────────────────────────────────
+// ── Tabs ────────────────────────────────────────────────
+document.getElementById('tabs').addEventListener('click', e => {
+  const btn = e.target.closest('.tab');
+  if (!btn) return;
+  document.querySelectorAll('#tabs .tab').forEach(b => b.className = 'tab off');
+  btn.className = 'tab on';
+  activeCat = btn.dataset.cat;
+  render();
+});
+
+// ── Settings ────────────────────────────────────────────
 function openSettings() {
-  document.getElementById('tog-sensitive').classList.toggle('on', S.hideSensitive);
-  document.getElementById('tog-dup').classList.toggle('on', S.ignoreDups);
-  document.getElementById('sel-clear').value = S.autoClear;
-  document.getElementById('settings-panel').classList.add('open');
+  document.getElementById('tog-mask').classList.toggle('on', S.mask);
+  document.getElementById('tog-dup').classList.toggle('on', S.dedupe);
+  document.getElementById('sel-keep').value = S.keep;
+  document.getElementById('settings-overlay').classList.add('open');
 }
-function closeSettings(e, force) {
-  if (!force && e && e.target !== document.getElementById('settings-panel')) return;
-  document.getElementById('settings-panel').classList.remove('open');
+function closeSettings() {
+  document.getElementById('settings-overlay').classList.remove('open');
 }
+document.getElementById('settings-btn').addEventListener('click', openSettings);
+document.getElementById('settings-close').addEventListener('click', closeSettings);
+document.getElementById('settings-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('settings-overlay')) closeSettings();
+});
+document.getElementById('tog-mask').addEventListener('click', function() {
+  S.mask = !S.mask; this.classList.toggle('on', S.mask); save(); render();
+});
+document.getElementById('tog-dup').addEventListener('click', function() {
+  S.dedupe = !S.dedupe; this.classList.toggle('on', S.dedupe); save();
+});
+document.getElementById('sel-keep').addEventListener('change', function() {
+  S.keep = this.value; save();
+});
+document.getElementById('clear-all-btn').addEventListener('click', () => {
+  confirm('حذف الكل', 'حذف جميع العناصر؟', () => {
+    S.items = []; S.pinned = []; save(); render(); closeSettings();
+  });
+});
 
 // ── System bars ─────────────────────────────────────────
-function syncBars() {
-  if (!isAndroid || !Android.setBars) return;
-  Android.setBars('#0D0D14', false);
-}
+if (isAndroid && Android.setBars) Android.setBars('#0D0D14', false);
 
 // ── Toast ──────────────────────────────────────────────
-let toastTimer;
+let toastT;
 function toast(msg, ok) {
   const el = document.getElementById('toast');
   el.textContent = msg;
-  el.className = 'show' + (ok ? ' success' : '');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.className = '', 2200);
+  el.className = 'show' + (ok ? ' ok' : '');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => el.className = '', 2200);
 }
 
-// ── Init ────────────────────────────────────────────────
-syncBars();
+// ── Paste button ─────────────────────────────────────────
+document.getElementById('paste-btn').addEventListener('click', readClipboard);
+
+// ── Init ───────────────────────────────────────────────
 render();
 </script>
 </body>
