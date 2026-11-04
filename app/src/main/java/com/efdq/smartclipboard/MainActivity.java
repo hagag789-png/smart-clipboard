@@ -44,9 +44,9 @@ public class MainActivity extends AppCompatActivity {
             try {
                 ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
                 if (cm == null) return "";
-                ClipData data = cm.getPrimaryClip();
-                if (data == null || data.getItemCount() == 0) return "";
-                CharSequence text = data.getItem(0).coerceToText(MainActivity.this);
+                ClipData cd = cm.getPrimaryClip();
+                if (cd == null || cd.getItemCount() == 0) return "";
+                CharSequence text = cd.getItemAt(0).coerceToText(MainActivity.this);
                 return text != null ? text.toString() : "";
             } catch (Exception e) { return ""; }
         }
