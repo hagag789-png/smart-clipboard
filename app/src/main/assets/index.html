@@ -164,6 +164,7 @@ button { font-family: inherit; cursor: pointer; }
   margin-bottom: 2px; color: var(--dim);
 }
 .clip-kind.hot { color: var(--amber); }
+.ai-badge { font-size: 9px; opacity: .8; }
 .clip-val {
   font-size: 12px; font-weight: 600; color: var(--text2);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -353,6 +354,11 @@ button { font-family: inherit; cursor: pointer; }
     <button class="tab off" data-cat="code">🔑 أكواد</button>
     <button class="tab off" data-cat="card">💳 بطاقات</button>
     <button class="tab off" data-cat="url">🔗 روابط</button>
+    <button class="tab off" data-cat="otp">🔐 تحقق</button>
+    <button class="tab off" data-cat="money">💰 مبالغ</button>
+    <button class="tab off" data-cat="date">📅 تواريخ</button>
+    <button class="tab off" data-cat="iban">🏦 IBAN</button>
+    <button class="tab off" data-cat="address">📍 عناوين</button>
     <button class="tab off" data-cat="number">🔢 أرقام</button>
     <button class="tab off" data-cat="text">📝 نص</button>
   </div>
@@ -418,11 +424,22 @@ button { font-family: inherit; cursor: pointer; }
       </div>
     </div>
 
+    <div class="sec-lbl">الذكاء الاصطناعي</div>
+    <div class="sg">
+      <div class="sr">
+        <div class="sr-info">
+          <span class="sr-ico">🤖</span>
+          <div><div class="sr-name">فهم النص على الجهاز (ML Kit)</div><div class="sr-sub" id="ml-sub">غير متاح على هذا الجهاز</div></div>
+        </div>
+        <span id="ml-dot" style="width:10px;height:10px;border-radius:50%;background:var(--muted);flex-shrink:0;"></span>
+      </div>
+    </div>
+
     <div class="sec-lbl">عن التطبيق</div>
     <div class="sg">
       <div class="sr">
         <div class="sr-name" style="color:var(--text2);">الإصدار</div>
-        <div style="color:var(--muted);font-size:13px;">1.2.0</div>
+        <div style="color:var(--muted);font-size:13px;">1.3.0</div>
       </div>
       <div class="sr" id="del-all" style="cursor:pointer;">
         <div class="sr-name" style="color:var(--red);">مسح جميع البيانات</div>
@@ -486,39 +503,208 @@ function applyClear() {
   S.items = S.items.filter(i => i.ts > cut);
 }
 
-// ── Categories ────────────────────────────────────────────────────
-const CATS = [
-  { cat:'email',  label:'بريد إلكتروني', icon:'✉',  bg:'#121c2e', sensitive:false,
-    re:/^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/ },
-  { cat:'url',    label:'رابط',           icon:'🔗', bg:'#101028', sensitive:false,
-    re:/^https?:\/\/.+/ },
-  { cat:'phone',  label:'هاتف',           icon:'📞', bg:'#121f12', sensitive:false,
-    re:/^(\+\d[\d\s\-\(\)\.]{7,18}|0\d[\d\s\-\(\)\.]{6,16}|\(\d+\)[\d\s\-\.]{5,14}|\d{2,4}[\-\s]\d{3,4}[\-\s]\d{3,8})$/ },
-  { cat:'card',   label:'بطاقة بنكية',   icon:'💳', bg:'#12181e', sensitive:true,
-    re:/^\d{4}[\s\-]?\d{4}[\s\-]?\d{4}[\s\-]?\d{4}\d{0,3}$/ },
-  { cat:'number', label:'رقم',            icon:'🔢', bg:'#0d1a1a', sensitive:false,
-    re:/^-?[٠-٩\d][٠-٩\d\s,\.]*$/ },
-  { cat:'code',   label:'كلمة سر / كود', icon:'🔑', bg:'#22150a', sensitive:true,
-    re:/^[A-Z0-9\-_]{4,8}(-[A-Z0-9]{4,8}){1,3}$/ },
-];
-function categorize(raw) {
-  const t = raw.trim();
-  if (!t || t.length > 2000) return null;
-  // مطابقة تامة
-  for (const c of CATS) { if (c.re.test(t)) return { ...c, extracted: null }; }
-  if (/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/.test(t))
-    return { cat:'code', label:'كلمة سر', icon:'🔑', bg:'#22150a', sensitive:true, extracted: null };
-  // كشف ذكي: استخرج القيمة المضمّنة داخل النص
-  if (t.length <= 400) {
-    const emailM = t.match(/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/);
-    if (emailM) return { ...CATS.find(c => c.cat === 'email'), extracted: emailM[0] };
-    const urlM = t.match(/https?:\/\/\S+/);
-    if (urlM) return { ...CATS.find(c => c.cat === 'url'), extracted: urlM[0] };
-    const phoneM = t.match(/(\+\d[\d\s\-\(\)\.]{7,}|(?<![,\.\d])0\d{9,13}(?![,\.\d]))/);
-    if (phoneM) return { ...CATS.find(c => c.cat === 'phone'), extracted: phoneM[0].trim() };
-  }
-  return { cat:'text', label:'نص عام', icon:'📝', bg:'#1a1a28', sensitive:false, extracted: null };
+// ── Smart Extraction Engine ───────────────────────────────────────
+// يستخرج كل القيم المفيدة من النص (هاتف، إيميل، رابط، كود تحقق، مبلغ، تاريخ، IBAN، بطاقة...)
+// طبقة 1: قواعد ذكية (فورية). طبقة 2: ML Kit على الجهاز (تُدمج لاحقاً عبر onMlEntities).
+
+const CAT_META = {
+  email:    { label:'بريد إلكتروني', icon:'✉',  bg:'#121c2e', sensitive:false, pri:10 },
+  url:      { label:'رابط',           icon:'🔗', bg:'#101028', sensitive:false, pri:9  },
+  iban:     { label:'حساب بنكي IBAN', icon:'🏦', bg:'#12181e', sensitive:true,  pri:8  },
+  card:     { label:'بطاقة بنكية',   icon:'💳', bg:'#12181e', sensitive:true,  pri:7  },
+  otp:      { label:'رمز تحقق',       icon:'🔐', bg:'#22150a', sensitive:true,  pri:6  },
+  phone:    { label:'هاتف',           icon:'📞', bg:'#121f12', sensitive:false, pri:5  },
+  money:    { label:'مبلغ',           icon:'💰', bg:'#1a1a0d', sensitive:false, pri:4  },
+  date:     { label:'تاريخ / وقت',    icon:'📅', bg:'#0d1a1a', sensitive:false, pri:3  },
+  tracking: { label:'رقم شحنة',       icon:'📦', bg:'#1a150d', sensitive:false, pri:2  },
+  flight:   { label:'رحلة طيران',     icon:'✈',  bg:'#0d141a', sensitive:false, pri:2  },
+  address:  { label:'عنوان',          icon:'📍', bg:'#1a0d14', sensitive:false, pri:1  },
+  code:     { label:'كلمة سر / كود', icon:'🔑', bg:'#22150a', sensitive:true,  pri:6  },
+  number:   { label:'رقم',            icon:'🔢', bg:'#0d1a1a', sensitive:false, pri:0  },
+  text:     { label:'نص عام',         icon:'📝', bg:'#1a1a28', sensitive:false, pri:0  },
+};
+
+// تحويل الأرقام العربية/الفارسية إلى لاتينية (نفس الطول → المواقع محفوظة)
+function normDigits(s) {
+  return s.replace(/[٠-٩]/g, d => String.fromCharCode(d.charCodeAt(0) - 0x660 + 48))
+          .replace(/[۰-۹]/g, d => String.fromCharCode(d.charCodeAt(0) - 0x6F0 + 48));
 }
+function digitsOnly(s) { return normDigits(s).replace(/\D/g, ''); }
+
+function luhn(num) {
+  const d = digitsOnly(num); if (d.length < 13 || d.length > 19) return false;
+  let sum = 0, alt = false;
+  for (let i = d.length - 1; i >= 0; i--) {
+    let n = +d[i]; if (alt) { n *= 2; if (n > 9) n -= 9; } sum += n; alt = !alt;
+  }
+  return sum % 10 === 0;
+}
+function ibanOk(s) {
+  const t = s.replace(/\s/g, '').toUpperCase();
+  if (!/^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$/.test(t)) return false;
+  const r = t.slice(4) + t.slice(0, 4);
+  let rem = 0;
+  for (const ch of r) {
+    const v = ch >= 'A' ? (ch.charCodeAt(0) - 55).toString() : ch;
+    for (const c of v) rem = (rem * 10 + +c) % 97;
+  }
+  return rem === 1;
+}
+
+// أنماط الكشف — كل نمط يعيد {cat, value, start, end}
+const RULES = [
+  { cat:'email', re:/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g },
+  { cat:'url',   re:/(?:https?:\/\/|www\.)[^\s<>"'؀-ۿ]+|(?<![\w@.])[a-z0-9\-]+(?:\.[a-z0-9\-]+)*\.(?:com|net|org|io|eg|sa|ae|me|app|dev|co|info|gov|edu|ly|tv)(?:\/[^\s<>"'؀-ۿ]*)?(?![\w@])/gi },
+  { cat:'iban',  re:/\b[A-Z]{2}\d{2}(?:\s?[A-Z0-9]{4}){3,7}(?:\s?[A-Z0-9]{1,4})?\b/g, ok:ibanOk },
+  { cat:'card',  re:/(?<!\d)(?:\d{4}[\s\-]?){3}\d{4}(?:[\s\-]?\d{1,3})?(?!\d)/g, ok:luhn },
+  // كود التحقق: كلمة مفتاحية ثم 4–8 أرقام
+  { cat:'otp',   re:/(?:رمز|كود|الكود|الرمز|رقم التحقق|التحقق|التفعيل|التأكيد|OTP|code|verification|verify|PIN|password|passcode|كلمة المرور)[^\d\n]{0,40}?(?<!\d)(\d{4,8})(?!\d)/gi, group:1 },
+  // هاتف: دولي أو محلي يبدأ بـ 0 — مع فواصل اختيارية
+  { cat:'phone', re:/(?<![\w+])(?:\+\s?\d{1,3}[\s\-]?(?:\(\d{1,4}\)[\s\-]?)?\d(?:[\s\-\.]?\d){6,12}|0\d(?:[\s\-\.]?\d){7,11})(?![\d\w])/g,
+    ok: v => { const d = digitsOnly(v); return d.length >= 8 && d.length <= 15; } },
+  { cat:'money', re:/(?:(?:EGP|SAR|AED|USD|EUR|GBP|KWD|QAR|LE|[$€£])\s?\d[\d,]*(?:\.\d+)?|\d[\d,]*(?:\.\d+)?\s?(?:جنيها?ً?|ج\.م|جم|ريالا?ً?|درهما?ً?|دينارا?ً?|دولارا?ً?|يورو|ليرة|EGP|SAR|AED|USD|EUR|GBP|KWD|QAR|LE|[$€£]|ألف جنيه|k\b))/gi },
+  { cat:'date',  re:/(?<!\d)(?:\d{1,2}[\/\-\.]\d{1,2}[\/\-\.](?:\d{4}|\d{2})|\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2})(?:\s*(?:الساعة|at)?\s*\d{1,2}:\d{2}(?:\s?(?:AM|PM|ص|م))?)?(?!\d)|(?<![\d:])\d{1,2}:\d{2}\s?(?:AM|PM|ص|م)(?![\d:])|\d{1,2}\s+(?:يناير|فبراير|مارس|أبريل|ابريل|مايو|يونيو|يوليو|أغسطس|اغسطس|سبتمبر|أكتوبر|اكتوبر|نوفمبر|ديسمبر|Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|June?|July?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s*(?:\d{4})?/gi },
+  { cat:'tracking', re:/\b(?:1Z[A-Z0-9]{16}|[A-Z]{2}\d{9}[A-Z]{2}|\d{12,14}(?=\s*(?:شحن|tracking|طرد|شحنة))|(?<=(?:شحن|tracking|طرد|شحنة|بوليصة)[^\d\n]{0,25})[A-Z0-9]{10,22})\b/gi },
+  { cat:'flight', re:/\b[A-Z]{2}\s?\d{3,4}\b(?=.*(?:رحلة|flight|طيران|مطار|boarding))|(?<=(?:رحلة|flight|طيران)[^\w\n]{0,20})[A-Z]{2}\s?\d{3,4}\b/gi },
+];
+
+// مطابقة تامة على النص كله (لها الأولوية)
+const EXACT = [
+  { cat:'code',   re:/^[A-Z0-9\-_]{4,8}(-[A-Z0-9]{4,8}){1,3}$/ },
+  { cat:'code',   re:/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)[^\s]{8,}$/ },
+  { cat:'otp',    re:/^\d{4,8}$/ },
+  { cat:'number', re:/^-?[٠-٩\d][٠-٩\d\s,\.]*$/ },
+];
+
+function mk(cat, value, start, end, extra) {
+  return Object.assign({ cat, value: value.trim(), start, end, ai:false }, CAT_META[cat], extra || {});
+}
+
+// الاستخراج الرئيسي: يعيد مصفوفة كيانات (قد تكون فارغة)
+function extractAll(raw) {
+  const t = raw.trim();
+  if (!t || t.length > 3000) return [];
+  const n = normDigits(t);
+
+  // 1) مطابقة تامة لأكواد التفعيل وكلمات السر
+  for (const e of EXACT) {
+    if (e.cat === 'code' && e.re.test(n) && !/^(?:\d{4}[\s\-]?){3}\d{4}$/.test(n))
+      return [mk('code', t, 0, t.length, { exact:true })];
+  }
+
+  // 2) كل الأنماط المضمّنة
+  let found = [];
+  for (const r of RULES) {
+    r.re.lastIndex = 0; let m;
+    while ((m = r.re.exec(n)) !== null) {
+      if (m[0].length === 0) { r.re.lastIndex++; continue; }
+      let start = m.index, end = m.index + m[0].length;
+      if (r.group) { const g = m[r.group]; start = m.index + m[0].lastIndexOf(g); end = start + g.length; }
+      const val = t.slice(start, end);
+      if (r.ok && !r.ok(val)) continue;
+      found.push(mk(r.cat, val, start, end));
+    }
+  }
+
+  // 2ب) لا شيء مضمّن؟ جرّب الأرقام الصرفة (OTP قصير أو رقم عام)
+  if (!found.length) {
+    for (const e of EXACT) {
+      if (e.cat === 'code' || !e.re.test(n)) continue;
+      const cat = (e.cat === 'otp' && /^(19|20)\d\d$/.test(n)) ? 'number' : e.cat;
+      return [mk(cat, t, 0, t.length, { exact:true })];
+    }
+    return [];
+  }
+
+  // 3) إزالة التداخل: الأولوية الأعلى تفوز
+  found.sort((a, b) => b.pri - a.pri || a.start - b.start);
+  const kept = [];
+  for (const f of found) {
+    if (kept.some(k => f.start < k.end && f.end > k.start)) continue;
+    kept.push(f);
+  }
+  kept.sort((a, b) => a.start - b.start);
+  // إزالة التكرار بنفس القيمة
+  const seen = new Set();
+  return kept.filter(k => { const key = k.cat + '|' + digitsOnly(k.value) + '|' + k.value.toLowerCase(); if (seen.has(key)) return false; seen.add(key); return true; });
+}
+
+// هل القيمة مكررة لقيمة موجودة (مقارنة بالأرقام فقط للأنواع الرقمية)
+function sameValue(a, b) {
+  if (!a || !b) return false;
+  const x = a.trim().toLowerCase(), y = b.trim().toLowerCase();
+  if (x === y) return true;
+  const dx = digitsOnly(a), dy = digitsOnly(b);
+  return dx.length >= 6 && (dx === dy || dx.endsWith(dy) || dy.endsWith(dx));
+}
+
+
+// ── إضافة الكيانات كبطاقات ─────────────────────────────────────────
+// text: النص الأصلي، ents: نتائج extractAll أو ML Kit، ai: هل مصدرها الذكاء الاصطناعي
+function addEntities(text, ents, ai) {
+  const grp = Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+  const base = Date.now();
+  const list = ents.length ? ents : [Object.assign({ cat:'text', value:text, exact:true }, CAT_META.text)];
+  const added = [];
+  list.forEach((e, i) => {
+    const item = {
+      id: (base + i).toString(36) + i,
+      grp,                                   // نفس المجموعة = نفس النص الأصلي
+      val: text,                             // النص الأصلي كاملاً
+      extracted: e.exact ? null : e.value,   // القيمة المستخرجة
+      cat: e.cat, label: e.label, icon: e.icon, bg: e.bg,
+      sensitive: e.sensitive, ai: !!ai, ts: base,
+    };
+    S.items.unshift(item); added.push(item);
+  });
+  return added;
+}
+
+// ── ML Kit (ذكاء اصطناعي على الجهاز) ───────────────────────────────
+const ML = { status: 'none', pending: {} };   // none | downloading | ready | failed
+const ML_TYPES = { 1:'address', 2:'date', 3:'email', 4:'flight', 5:'iban', 6:'isbn', 7:'card', 8:'phone', 9:'tracking', 10:'url', 11:'money' };
+
+function askMl(text) {
+  if (!isAndroid || ML.status !== 'ready' || typeof Android.extractEntities !== 'function') return;
+  const reqId = 'r' + Date.now().toString(36);
+  ML.pending[reqId] = text;
+  try { Android.extractEntities(text, reqId); } catch(_) { delete ML.pending[reqId]; }
+}
+
+// يُستدعى من Java عند اكتمال التحليل
+window.onMlEntities = function(reqId, ents) {
+  const text = ML.pending[reqId]; delete ML.pending[reqId];
+  if (!text || !Array.isArray(ents)) return;
+  const grpItems = S.items.filter(i => i.val === text);
+  if (!grpItems.length) return;                 // حُذف قبل وصول النتيجة
+  const grp = grpItems[0].grp;
+  const fresh = [];
+  for (const e of ents) {
+    const cat = ML_TYPES[e.type]; if (!cat || !CAT_META[cat]) continue;
+    const value = (e.text || '').trim(); if (!value) continue;
+    // تخطَّ ما اكتشفته القواعد مسبقاً
+    const dup = grpItems.some(i => i.cat === cat && sameValue(i.extracted || i.val, value))
+             || fresh.some(f => f.cat === cat && sameValue(f.value, value));
+    if (dup) continue;
+    fresh.push(Object.assign({ cat, value, exact: value === text }, CAT_META[cat]));
+  }
+  if (!fresh.length) return;
+  // إن كانت المجموعة مجرد "نص عام"، استبدلها بما فهمه الذكاء الاصطناعي
+  const onlyText = grpItems.length === 1 && grpItems[0].cat === 'text';
+  if (onlyText) { S.items = S.items.filter(i => i.id !== grpItems[0].id); S.pinned.delete(grpItems[0].id); }
+  const added = addEntities(text, fresh, true);
+  added.forEach(a => a.grp = grp);
+  save(); render();
+  toast('🤖 الذكاء الاصطناعي أضاف: ' + added.map(a => a.icon).join(' '), true);
+};
+
+// حالة نموذج الذكاء الاصطناعي (من Java)
+window.onMlStatus = function(st) {
+  ML.status = st;
+  const el = document.getElementById('ml-sub'); if (!el) return;
+  el.textContent = { downloading:'يتم تحميل النموذج (مرة واحدة)…', ready:'جاهز — يعمل بدون إنترنت', failed:'غير متاح — تعمل القواعد الذكية فقط', none:'غير متاح على هذا الجهاز' }[st] || st;
+  const dot = document.getElementById('ml-dot'); if (dot) dot.style.background = st === 'ready' ? 'var(--green)' : st === 'downloading' ? 'var(--amber)' : 'var(--muted)';
+};
 
 // ── Clipboard ─────────────────────────────────────────────────────
 async function readClipboard() {
@@ -534,21 +720,16 @@ async function readClipboard() {
       text = await navigator.clipboard.readText();
     }
     if (!text || !text.trim()) { toast('الحافظة فارغة'); return; }
-    if (S.items.some(i => i.val === text.trim())) { toast('موجود مسبقاً'); return; }
-    const c = categorize(text);
-    if (!c) { toast('نص فارغ'); return; }
-    const item = {
-      id: Date.now().toString(36),
-      val: text.trim(),
-      extracted: c.extracted || null,   // القيمة المستخرجة (هاتف/إيميل/رابط) إن وُجدت
-      cat: c.cat,
-      label: c.label, icon: c.icon, bg: c.bg,
-      sensitive: c.sensitive, ts: Date.now()
-    };
-    S.items.unshift(item);
+    text = text.trim();
+    if (text.length > 3000) { toast('النص طويل جداً'); return; }
+    if (S.items.some(i => i.val === text)) { toast('موجود مسبقاً'); return; }
+    const added = addEntities(text, extractAll(text), false);
     save(); render();
-    toast('✓ ' + c.label, true);
+    if (added.length === 1) toast('✓ ' + added[0].label, true);
+    else toast(`✓ ${added.length} عناصر: ` + added.map(a => a.icon).join(' '), true);
     document.querySelector('.running-label').textContent = 'تم الرصد';
+    // الطبقة الثانية: ذكاء اصطناعي على الجهاز (ML Kit) — نتائجه تُدمج عند وصولها
+    askMl(text);
   } catch(e) {
     if (e && e.name === 'NotAllowedError')
       toast('اسمح بالوصول للحافظة في المتصفح');
@@ -589,7 +770,7 @@ function cardHTML(item, pinned) {
   const displayVal = item.extracted || item.val;
   const dv = masked ? '●'.repeat(Math.min(displayVal.length, 12)) : displayVal;
   const kindCls = item.sensitive ? 'clip-kind hot' : 'clip-kind';
-  const kindLbl = (item.sensitive ? '⚠ ' : '') + item.label;
+  const kindLbl = (item.sensitive ? '⚠ ' : '') + item.label + (item.ai ? ' <span class="ai-badge">🤖</span>' : '');
   const revBtn = item.sensitive
     ? `<button class="act-btn reveal-btn" data-id="${item.id}">${rev?'🙈':'👁'}</button>` : '';
   const cardCls = 'clip-card' + (item.sensitive?' sensitive':'') + (pinned?' pinned':'');
@@ -787,6 +968,10 @@ render();
 // Set system bars to match app theme
 if (isAndroid && typeof Android.setBars === 'function') {
   Android.setBars('#0D0D14', false);
+}
+// حالة نموذج الذكاء الاصطناعي
+if (isAndroid && typeof Android.mlStatus === 'function') {
+  try { onMlStatus(Android.mlStatus()); } catch(_) {}
 }
 </script>
 </body>
